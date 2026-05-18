@@ -11,8 +11,8 @@ const App = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const BACKEND_URL = "https://weather-backend-n5fs.onrender.com";
 
-const BACKEND_URL = "https://weather-backend.onrender.com";
   const getWeather = async (selectedCity) => {
 
     if (!selectedCity) return;
@@ -26,10 +26,10 @@ const BACKEND_URL = "https://weather-backend.onrender.com";
       );
 
       const data = await res.json();
+
       if (data.error) {
 
         setError(data.error.message);
-
         setWeather(null);
 
       } else {
@@ -41,18 +41,25 @@ const BACKEND_URL = "https://weather-backend.onrender.com";
       }
 
     } catch (err) {
+
       setError("Server error");
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
   const searchCities = async (value) => {
 
     setCity(value);
+
     if (value.trim().length === 0) {
+
       setSuggestions([]);
       return;
+
     }
 
     try {
@@ -71,6 +78,7 @@ const BACKEND_URL = "https://weather-backend.onrender.com";
 
     }
   };
+
   const getHistory = async () => {
 
     try {
@@ -89,10 +97,10 @@ const BACKEND_URL = "https://weather-backend.onrender.com";
 
     }
   };
+
   useEffect(() => {
 
     getWeather("Sikar");
-
     getHistory();
 
   }, []);
@@ -117,34 +125,49 @@ const BACKEND_URL = "https://weather-backend.onrender.com";
                 searchCities(e.target.value)
               }
             />
+
             {
               suggestions.length > 0 && (
+
                 <div className="dropdown">
+
                   {
                     suggestions.map((item, index) => (
+
                       <div
                         key={index}
                         className="dropdown-item"
                         onClick={() => {
+
                           setCity(item.name);
                           getWeather(item.name);
                           setSuggestions([]);
+
                         }}
                       >
+
                         🌍 {item.name}, {item.region}, {item.country}
+
                       </div>
+
                     ))
                   }
+
                 </div>
+
               )
             }
+
           </div>
+
           <button
             onClick={() => getWeather(city)}
           >
             Search
           </button>
+
         </div>
+
         {
           loading && (
             <p className="loading">
@@ -152,6 +175,7 @@ const BACKEND_URL = "https://weather-backend.onrender.com";
             </p>
           )
         }
+
         {
           error && (
             <p className="error">
@@ -159,16 +183,22 @@ const BACKEND_URL = "https://weather-backend.onrender.com";
             </p>
           )
         }
+
         {
           weather && !loading && (
             <WeatherCard weather={weather} />
           )
         }
+
         <div className="history-box">
+
           <h2>📜 Search History</h2>
+
           {
             history.length > 0 ? (
+
               history.map((item, index) => (
+
                 <div
                   key={index}
                   className="history-item"
@@ -176,15 +206,24 @@ const BACKEND_URL = "https://weather-backend.onrender.com";
                     getWeather(item.city)
                   }
                 >
+
                   🌍 {item.city}
+
                 </div>
+
               ))
+
             ) : (
+
               <p>No history found</p>
+
             )
           }
+
         </div>
+
       </div>
+
     </div>
 
   );
