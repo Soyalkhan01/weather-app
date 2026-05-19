@@ -8,12 +8,14 @@ from database import save_city, get_history
 load_dotenv()
 
 app = Flask(__name__)
+
 CORS(app)
 
 API_KEY = os.getenv("WEATHER_API_KEY")
 
 @app.route("/")
 def home():
+
     return jsonify({
         "message": "Backend Running"
     })
@@ -21,7 +23,7 @@ def home():
 @app.route("/weather/<city>")
 def get_weather(city):
 
-    url = f"https://api.weatherapi.com/v1/current.json?key={API_KEY}&q={city}"
+    url = f"https://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={city}&days=5"
 
     response = requests.get(url)
 
@@ -53,4 +55,5 @@ def history():
     )
 
 if __name__ == "__main__":
+
     app.run(debug=True)

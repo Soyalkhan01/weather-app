@@ -232,7 +232,45 @@ margin-bottom:15px;
 padding:10px;
 border-bottom:1px solid rgba(255,255,255,0.1);
 }
+.forecast-section{
+margin-top:20px;
+}
 
+.forecast-section h3{
+margin-bottom:15px;
+text-align:center;
+font-size:24px;
+}
+
+.forecast-container{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:12px;
+}
+
+.forecast-card{
+background:rgba(255,255,255,0.12);
+padding:15px;
+border-radius:18px;
+text-align:center;
+}
+
+.forecast-card img{
+width:55px;
+}
+
+.forecast-card h4{
+margin:10px 0;
+font-size:22px;
+}
+
+@media(max-width:768px){
+
+.forecast-container{
+grid-template-columns:1fr 1fr;
+}
+
+}
 @media(max-width:992px){
 
 .weather-details{
