@@ -8,52 +8,85 @@ from database import save_city, get_history
 load_dotenv()
 
 app = Flask(__name__)
-
 CORS(app)
 
 API_KEY = os.getenv("WEATHER_API_KEY")
 
+# =========================
+# HOME ROUTE
+# =========================
 @app.route("/")
 def home():
-
     return jsonify({
         "message": "Backend Running"
     })
 
+
+# =========================
+# WEATHER API
+# =========================
 @app.route("/weather/<city>")
 def get_weather(city):
 
-    url = f"https://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={city}&days=5"
+    try:
+        url = f"https://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={city}&days=5"
 
-    response = requests.get(url)
+        response = requests.get(url, timeout=10)
+        data = response.json()
 
-    data = response.json()
+        if "error" in data:
+            return jsonify({
+                "error": data["error"]
+            }), 404
 
-    if "error" in data:
-        return jsonify(data), 404
+        save_city(city)
 
-    save_city(city)
+        return jsonify(data)
 
-    return jsonify(data)
+    except requests.exceptions.RequestException:
+        return jsonify({
+            "error": "Weather service unavailable"
+        }), 500
 
+
+# =========================
+# SEARCH CITY API
+# =========================
 @app.route("/search/<query>")
 def search_city(query):
 
-    url = f"https://api.weatherapi.com/v1/search.json?key={API_KEY}&q={query}"
+    try:
+        url = f"https://api.weatherapi.com/v1/search.json?key={API_KEY}&q={query}"
 
-    response = requests.get(url)
+        response = requests.get(url, timeout=10)
+        data = response.json()
 
-    data = response.json()
+        return jsonify(data)
 
-    return jsonify(data)
+    except requests.exceptions.RequestException:
+        return jsonify([]), 500
 
+
+# =========================
+# HISTORY API
+# =========================
 @app.route("/history")
 def history():
 
-    return jsonify(
-        get_history()
-    )
+    try:
+        data = get_history()
 
+        if not data:
+            return jsonify([])
+
+        return jsonify(data)
+
+    except Exception:
+        return jsonify([]), 500
+
+
+# =========================
+# RUN SERVER
+# =========================
 if __name__ == "__main__":
-
     app.run(debug=True)

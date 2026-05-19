@@ -1,5 +1,6 @@
 import React from "react";
 import WeatherChart from "./WeatherChart";
+
 const WeatherCard = ({ weather }) => {
 
   return (
@@ -39,67 +40,35 @@ const WeatherCard = ({ weather }) => {
       <div className="weather-details">
 
         <div className="detail-box">
-
           <span>💧</span>
-
           <div>
-
             <h4>Humidity</h4>
-
-            <p>
-              {weather.current.humidity}%
-            </p>
-
+            <p>{weather.current.humidity}%</p>
           </div>
-
         </div>
 
         <div className="detail-box">
-
           <span>🌬</span>
-
           <div>
-
             <h4>Wind</h4>
-
-            <p>
-              {weather.current.wind_kph} kph
-            </p>
-
+            <p>{weather.current.wind_kph} kph</p>
           </div>
-
         </div>
 
         <div className="detail-box">
-
           <span>🌡</span>
-
           <div>
-
             <h4>Feels Like</h4>
-
-            <p>
-              {weather.current.feelslike_c}°C
-            </p>
-
+            <p>{weather.current.feelslike_c}°C</p>
           </div>
-
         </div>
 
         <div className="detail-box">
-
           <span>☀</span>
-
           <div>
-
             <h4>UV Index</h4>
-
-            <p>
-              {weather.current.uv}
-            </p>
-
+            <p>{weather.current.uv}</p>
           </div>
-
         </div>
 
       </div>
@@ -109,43 +78,23 @@ const WeatherCard = ({ weather }) => {
         <h3>Weather Details</h3>
 
         <div className="extra-row">
-
           <span>Pressure</span>
-
-          <span>
-            {weather.current.pressure_mb} mb
-          </span>
-
+          <span>{weather.current.pressure_mb} mb</span>
         </div>
 
         <div className="extra-row">
-
           <span>Visibility</span>
-
-          <span>
-            {weather.current.vis_km} km
-          </span>
-
+          <span>{weather.current.vis_km} km</span>
         </div>
 
         <div className="extra-row">
-
           <span>Cloud</span>
-
-          <span>
-            {weather.current.cloud}%
-          </span>
-
+          <span>{weather.current.cloud}%</span>
         </div>
 
         <div className="extra-row">
-
           <span>Local Time</span>
-
-          <span>
-            {weather.location.localtime}
-          </span>
-
+          <span>{weather.location.localtime}</span>
         </div>
 
       </div>
@@ -160,43 +109,32 @@ const WeatherCard = ({ weather }) => {
 
         <div className="forecast-container">
 
-          {
+          {weather.forecast?.forecastday?.map((day, index) => (
 
-            weather.forecast.forecastday.map((day, index) => (
+            <div key={index} className="forecast-card">
 
-              <div
-                key={index}
-                className="forecast-card"
-              >
+              <p>{day.date}</p>
 
-                <p>
-                  {day.date}
-                </p>
+              <img
+                src={`https:${day.day.condition.icon}`}
+                alt=""
+              />
 
-                <img
-                  src={`https:${day.day.condition.icon}`}
-                  alt=""
-                />
+              <h4>{day.day.avgtemp_c}°C</h4>
 
-                <h4>
-                  {day.day.avgtemp_c}°C
-                </h4>
+              <p>{day.day.condition.text}</p>
 
-                <p>
-                  {day.day.condition.text}
-                </p>
+            </div>
 
-              </div>
-
-            ))
-
-          }
+          ))}
 
         </div>
 
       </div>
-{/* WEATHER CHART */}
-<WeatherChart forecast={weather.forecast.forecastday} />
+
+      {/* WEATHER CHART */}
+      <WeatherChart forecast={weather.forecast?.forecastday} />
+
     </div>
 
   );
