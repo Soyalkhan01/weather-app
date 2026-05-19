@@ -1,5 +1,5 @@
 import React from "react";
-
+import WeatherChart from "./WeatherChart";
 const WeatherCard = ({ weather }) => {
 
   return (
@@ -195,7 +195,8 @@ const WeatherCard = ({ weather }) => {
         </div>
 
       </div>
-
+{/* WEATHER CHART */}
+<WeatherChart forecast={weather.forecast.forecastday} />
     </div>
 
   );
