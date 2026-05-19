@@ -98,12 +98,43 @@ const App = () => {
     }
   };
 
-  useEffect(() => {
+useEffect(() => {
 
-    getWeather("Sikar");
-    getHistory();
+  getHistory();
 
-  }, []);
+  navigator.geolocation.getCurrentPosition(
+
+    async (position) => {
+
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      try {
+
+        const res = await fetch(
+          `${BACKEND_URL}/weather/${latitude},${longitude}`
+        );
+
+        const data = await res.json();
+
+        setWeather(data);
+
+      } catch (err) {
+
+        setError("Location weather not found");
+
+      }
+
+    },
+    () => {
+
+      getWeather("Sikar");
+
+    }
+
+  );
+
+}, []);
 
   return (
 
