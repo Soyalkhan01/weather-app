@@ -10,12 +10,10 @@ const App = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
 
   const BACKEND_URL = "https://weather-backend-n5fs.onrender.com";
 
-  // =========================
-  // GET WEATHER
-  // =========================
   const getWeather = async (selectedCity) => {
 
     if (!selectedCity) return;
@@ -57,9 +55,6 @@ const App = () => {
     }
   };
 
-  // =========================
-  // SEARCH CITIES
-  // =========================
   const searchCities = async (value) => {
 
     setCity(value);
@@ -89,9 +84,6 @@ const App = () => {
     }
   };
 
-  // =========================
-  // GET HISTORY
-  // =========================
   const getHistory = async () => {
 
     try {
@@ -111,9 +103,6 @@ const App = () => {
     }
   };
 
-  // =========================
-  // CURRENT LOCATION WEATHER
-  // =========================
   const getCurrentLocationWeather = () => {
 
     if (navigator.geolocation) {
@@ -142,6 +131,8 @@ const App = () => {
 
             setError("");
 
+            getHistory();
+
           } catch (err) {
 
             setError("Location weather failed");
@@ -169,9 +160,6 @@ const App = () => {
     }
   };
 
-  // =========================
-  // DEFAULT LOAD
-  // =========================
   useEffect(() => {
 
     getCurrentLocationWeather();
@@ -182,9 +170,20 @@ const App = () => {
 
   return (
 
-    <div className="container">
+    <div className={darkMode ? "container dark" : "container light"}>
 
       <div className="weather-box">
+
+        <div className="theme-toggle">
+
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="theme-btn"
+          >
+            {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+          </button>
+
+        </div>
 
         <h1>🌤 Weather App</h1>
 
