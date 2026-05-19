@@ -13,6 +13,9 @@ const App = () => {
 
   const BACKEND_URL = "https://weather-backend-n5fs.onrender.com";
 
+  // =========================
+  // GET WEATHER
+  // =========================
   const getWeather = async (selectedCity) => {
 
     if (!selectedCity) return;
@@ -30,12 +33,15 @@ const App = () => {
       if (data.error) {
 
         setError(data.error.message);
+
         setWeather(null);
 
       } else {
 
         setWeather(data);
+
         setError("");
+
         getHistory();
 
       }
@@ -51,6 +57,9 @@ const App = () => {
     }
   };
 
+  // =========================
+  // SEARCH CITIES
+  // =========================
   const searchCities = async (value) => {
 
     setCity(value);
@@ -58,6 +67,7 @@ const App = () => {
     if (value.trim().length === 0) {
 
       setSuggestions([]);
+
       return;
 
     }
@@ -79,6 +89,9 @@ const App = () => {
     }
   };
 
+  // =========================
+  // GET HISTORY
+  // =========================
   const getHistory = async () => {
 
     try {
@@ -98,43 +111,74 @@ const App = () => {
     }
   };
 
-useEffect(() => {
+  // =========================
+  // CURRENT LOCATION WEATHER
+  // =========================
+  const getCurrentLocationWeather = () => {
 
-  getHistory();
+    if (navigator.geolocation) {
 
-  navigator.geolocation.getCurrentPosition(
+      navigator.geolocation.getCurrentPosition(
 
-    async (position) => {
+        async (position) => {
 
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
+          const lat = position.coords.latitude;
 
-      try {
+          const lon = position.coords.longitude;
 
-        const res = await fetch(
-          `${BACKEND_URL}/weather/${latitude},${longitude}`
-        );
+          setLoading(true);
 
-        const data = await res.json();
+          try {
 
-        setWeather(data);
+            const res = await fetch(
+              `${BACKEND_URL}/weather/${lat},${lon}`
+            );
 
-      } catch (err) {
+            const data = await res.json();
 
-        setError("Location weather not found");
+            setWeather(data);
 
-      }
+            setCity(data.location.name);
 
-    },
-    () => {
+            setError("");
+
+          } catch (err) {
+
+            setError("Location weather failed");
+
+          } finally {
+
+            setLoading(false);
+
+          }
+
+        },
+
+        () => {
+
+          getWeather("Sikar");
+
+        }
+
+      );
+
+    } else {
 
       getWeather("Sikar");
 
     }
+  };
 
-  );
+  // =========================
+  // DEFAULT LOAD
+  // =========================
+  useEffect(() => {
 
-}, []);
+    getCurrentLocationWeather();
+
+    getHistory();
+
+  }, []);
 
   return (
 
@@ -158,11 +202,13 @@ useEffect(() => {
             />
 
             {
+
               suggestions.length > 0 && (
 
                 <div className="dropdown">
 
                   {
+
                     suggestions.map((item, index) => (
 
                       <div
@@ -171,7 +217,9 @@ useEffect(() => {
                         onClick={() => {
 
                           setCity(item.name);
+
                           getWeather(item.name);
+
                           setSuggestions([]);
 
                         }}
@@ -182,11 +230,13 @@ useEffect(() => {
                       </div>
 
                     ))
+
                   }
 
                 </div>
 
               )
+
             }
 
           </div>
@@ -200,25 +250,37 @@ useEffect(() => {
         </div>
 
         {
+
           loading && (
+
             <p className="loading">
               Loading weather...
             </p>
+
           )
+
         }
 
         {
+
           error && (
+
             <p className="error">
               {error}
             </p>
+
           )
+
         }
 
         {
+
           weather && !loading && (
+
             <WeatherCard weather={weather} />
+
           )
+
         }
 
         <div className="history-box">
@@ -226,6 +288,7 @@ useEffect(() => {
           <h2>📜 Search History</h2>
 
           {
+
             history.length > 0 ? (
 
               history.map((item, index) => (
@@ -249,6 +312,7 @@ useEffect(() => {
               <p>No history found</p>
 
             )
+
           }
 
         </div>
