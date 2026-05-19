@@ -23,7 +23,7 @@ def home():
 @app.route("/weather/<city>")
 def get_weather(city):
 
-    url = f"https://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={city}&days=5&aqi=yes&alerts=yes"
+    url = f"https://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={city}&days=5"
 
     response = requests.get(url)
 
