@@ -150,10 +150,6 @@ const WeatherCard = ({ weather }) => {
 
       </div>
 
-      {/* ========================= */}
-      {/* 5 DAY FORECAST */}
-      {/* ========================= */}
-
       <div className="forecast-section">
 
         <h3>5 Day Forecast</h3>
@@ -162,7 +158,7 @@ const WeatherCard = ({ weather }) => {
 
           {
 
-            weather.forecast.forecastday.map((day, index) => (
+            weather?.forecast?.forecastday?.map((day, index) => (
 
               <div
                 key={index}
@@ -175,7 +171,7 @@ const WeatherCard = ({ weather }) => {
 
                 <img
                   src={`https:${day.day.condition.icon}`}
-                  alt=""
+                  alt="forecast icon"
                 />
 
                 <h4>
