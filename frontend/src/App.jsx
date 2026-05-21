@@ -12,13 +12,19 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
 
+  // YOUR BACKEND URL
   const BACKEND_URL = "https://weather-backend-n5fs.onrender.com";
+
+  // =========================
+  // GET WEATHER
+  // =========================
 
   const getWeather = async (selectedCity) => {
 
     if (!selectedCity) return;
 
     setLoading(true);
+    setError("");
 
     try {
 
@@ -31,15 +37,12 @@ const App = () => {
       if (data.error) {
 
         setError(data.error.message);
-
         setWeather(null);
 
       } else {
 
         setWeather(data);
-
         setError("");
-
         getHistory();
 
       }
@@ -55,6 +58,10 @@ const App = () => {
     }
   };
 
+  // =========================
+  // SEARCH SUGGESTIONS
+  // =========================
+
   const searchCities = async (value) => {
 
     setCity(value);
@@ -62,7 +69,6 @@ const App = () => {
     if (value.trim().length === 0) {
 
       setSuggestions([]);
-
       return;
 
     }
@@ -84,6 +90,10 @@ const App = () => {
     }
   };
 
+  // =========================
+  // HISTORY
+  // =========================
+
   const getHistory = async () => {
 
     try {
@@ -103,6 +113,10 @@ const App = () => {
     }
   };
 
+  // =========================
+  // AUTO LOCATION WEATHER
+  // =========================
+
   const getCurrentLocationWeather = () => {
 
     if (navigator.geolocation) {
@@ -112,10 +126,10 @@ const App = () => {
         async (position) => {
 
           const lat = position.coords.latitude;
-
           const lon = position.coords.longitude;
 
           setLoading(true);
+          setError("");
 
           try {
 
@@ -125,13 +139,22 @@ const App = () => {
 
             const data = await res.json();
 
-            setWeather(data);
+            if (data.error) {
 
-            setCity(data.location.name);
+              setError(data.error.message);
 
-            setError("");
+            } else {
 
-            getHistory();
+              setWeather(data);
+
+              // AUTO CITY NAME
+              setCity(data.location.name);
+
+              setError("");
+
+              getHistory();
+
+            }
 
           } catch (err) {
 
@@ -145,9 +168,10 @@ const App = () => {
 
         },
 
+        // IF LOCATION DENIED
         () => {
 
-          getWeather("Sikar");
+          getWeather("Delhi");
 
         }
 
@@ -155,15 +179,33 @@ const App = () => {
 
     } else {
 
-      getWeather("Sikar");
+      getWeather("Delhi");
 
     }
   };
 
+  // =========================
+  // ENTER KEY SEARCH
+  // =========================
+
+  const handleKeyPress = (e) => {
+
+    if (e.key === "Enter") {
+
+      getWeather(city);
+
+      setSuggestions([]);
+
+    }
+  };
+
+  // =========================
+  // FIRST LOAD
+  // =========================
+
   useEffect(() => {
 
     getCurrentLocationWeather();
-
     getHistory();
 
   }, []);
@@ -174,18 +216,26 @@ const App = () => {
 
       <div className="weather-box">
 
+        {/* THEME BUTTON */}
+
         <div className="theme-toggle">
 
           <button
             onClick={() => setDarkMode(!darkMode)}
             className="theme-btn"
           >
+
             {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+
           </button>
 
         </div>
 
-        <h1>🌤 Weather App</h1>
+        {/* TITLE */}
+
+        <h1>🌤 Live Weather Forecast</h1>
+
+        {/* SEARCH */}
 
         <div className="search-box">
 
@@ -193,11 +243,12 @@ const App = () => {
 
             <input
               type="text"
-              placeholder="Search any city in world..."
+              placeholder="Search any city, village, country..."
               value={city}
               onChange={(e) =>
                 searchCities(e.target.value)
               }
+              onKeyDown={handleKeyPress}
             />
 
             {
@@ -215,9 +266,12 @@ const App = () => {
                         className="dropdown-item"
                         onClick={() => {
 
-                          setCity(item.name);
+                          const fullLocation =
+                            `${item.name}`;
 
-                          getWeather(item.name);
+                          setCity(fullLocation);
+
+                          getWeather(fullLocation);
 
                           setSuggestions([]);
 
@@ -241,36 +295,53 @@ const App = () => {
           </div>
 
           <button
-            onClick={() => getWeather(city)}
+            onClick={() => {
+
+              getWeather(city);
+              setSuggestions([]);
+
+            }}
           >
+
             Search
+
           </button>
 
         </div>
+
+        {/* LOADING */}
 
         {
 
           loading && (
 
             <p className="loading">
+
               Loading weather...
+
             </p>
 
           )
 
         }
+
+        {/* ERROR */}
 
         {
 
           error && (
 
             <p className="error">
+
               {error}
+
             </p>
 
           )
 
         }
+
+        {/* WEATHER */}
 
         {
 
@@ -281,6 +352,8 @@ const App = () => {
           )
 
         }
+
+        {/* HISTORY */}
 
         <div className="history-box">
 

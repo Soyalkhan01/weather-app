@@ -17,43 +17,103 @@ API_KEY = os.getenv("WEATHER_API_KEY")
 def home():
 
     return jsonify({
-        "message": "Backend Running"
+        "message": "Weather Backend Running Successfully"
     })
 
-@app.route("/weather/<city>")
+@app.route("/weather/<path:city>")
 def get_weather(city):
 
-    url = f"https://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={city}&days=5"
+    try:
 
-    response = requests.get(url)
+        url = (
+            f"https://api.weatherapi.com/v1/forecast.json"
+            f"?key={API_KEY}&q={city}&days=5&aqi=yes&alerts=yes"
+        )
 
-    data = response.json()
+        response = requests.get(url)
 
-    if "error" in data:
-        return jsonify(data), 404
+        data = response.json()
 
-    save_city(city)
+        if "error" in data:
 
-    return jsonify(data)
+            return jsonify(data), 404
+
+        # SAVE SEARCH HISTORY
+        save_city(data["location"]["name"])
+
+        return jsonify(data)
+
+    except Exception as e:
+
+        return jsonify({
+            "error": str(e)
+        }), 500
 
 @app.route("/search/<query>")
 def search_city(query):
 
-    url = f"https://api.weatherapi.com/v1/search.json?key={API_KEY}&q={query}"
+    try:
 
-    response = requests.get(url)
+        url = (
+            f"https://api.weatherapi.com/v1/search.json"
+            f"?key={API_KEY}&q={query}"
+        )
 
-    data = response.json()
+        response = requests.get(url)
 
-    return jsonify(data)
+        data = response.json()
+
+        return jsonify(data)
+
+    except Exception as e:
+
+        return jsonify({
+            "error": str(e)
+        }), 500
 
 @app.route("/history")
 def history():
 
-    return jsonify(
-        get_history()
-    )
+    try:
+
+        return jsonify(
+            get_history()
+        )
+
+    except Exception as e:
+
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+@app.route("/current-location/<lat>/<lon>")
+def current_location_weather(lat, lon):
+
+    try:
+
+        location = f"{lat},{lon}"
+
+        url = (
+            f"https://api.weatherapi.com/v1/forecast.json"
+            f"?key={API_KEY}&q={location}&days=5&aqi=yes&alerts=yes"
+        )
+
+        response = requests.get(url)
+
+        data = response.json()
+
+        return jsonify(data)
+
+    except Exception as e:
+
+        return jsonify({
+            "error": str(e)
+        }), 500
 
 if __name__ == "__main__":
 
-    app.run(debug=True)
+    app.run(
+        debug=True,
+        host="0.0.0.0",
+        port=5000
+    )
