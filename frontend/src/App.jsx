@@ -34,7 +34,7 @@ const App = () => {
   }, [city]);
 
   // =========================
-  // WEATHER FETCH
+  // GET WEATHER
   // =========================
 
   const getWeather = async (selectedCity) => {
@@ -118,7 +118,7 @@ const App = () => {
   };
 
   // =========================
-  // HISTORY
+  // GET HISTORY
   // =========================
 
   const getHistory = async () => {
@@ -144,7 +144,7 @@ const App = () => {
   };
 
   // =========================
-  // IP LOCATION FALLBACK
+  // IP LOCATION
   // =========================
 
   const getIPLocationWeather = async () => {
@@ -264,7 +264,7 @@ const App = () => {
   };
 
   // =========================
-  // DEFAULT LOAD
+  // FIRST LOAD
   // =========================
 
   useEffect(() => {
@@ -287,9 +287,88 @@ const App = () => {
 
       <div className="weather-box">
 
-        {/* THEME TOGGLE */}
+        {/* TOP BAR */}
 
-        <div className="theme-toggle">
+        <div className="top-bar">
+
+          <div className="search-box">
+
+            <div className="search-container">
+
+              <input
+                type="text"
+                placeholder="Search city..."
+                value={city}
+                onChange={(e) =>
+                  searchCities(
+                    e.target.value
+                  )
+                }
+                onKeyDown={handleKeyPress}
+              />
+
+              {
+
+                suggestions.length > 0 && (
+
+                  <div className="dropdown">
+
+                    {
+
+                      suggestions.map(
+                        (item, index) => (
+
+                          <div
+                            key={index}
+                            className="dropdown-item"
+                            onClick={() => {
+
+                              setCity(item.name);
+
+                              getWeather(
+                                item.name
+                              );
+
+                              setSuggestions([]);
+
+                            }}
+                          >
+
+                            🌍 {item.name},{" "}
+                            {item.country}
+
+                          </div>
+
+                        )
+                      )
+
+                    }
+
+                  </div>
+
+                )
+
+              }
+
+            </div>
+
+            <button
+              onClick={() => {
+
+                getWeather(city);
+
+                setSuggestions([]);
+
+              }}
+            >
+
+              Search
+
+            </button>
+
+          </div>
+
+          {/* THEME BUTTON */}
 
           <button
             className="theme-btn"
@@ -300,94 +379,9 @@ const App = () => {
 
             {
               darkMode
-                ? "☀ Light Mode"
-                : "🌙 Dark Mode"
+                ? "☀"
+                : "🌙"
             }
-
-          </button>
-
-        </div>
-
-        {/* TITLE */}
-
-        <h1>
-          🌤 Live Weather Forecast
-        </h1>
-
-        {/* SEARCH */}
-
-        <div className="search-box">
-
-          <div className="search-container">
-
-            <input
-              type="text"
-              placeholder="Search city..."
-              value={city}
-              onChange={(e) =>
-                searchCities(
-                  e.target.value
-                )
-              }
-              onKeyDown={handleKeyPress}
-            />
-
-            {
-
-              suggestions.length > 0 && (
-
-                <div className="dropdown">
-
-                  {
-
-                    suggestions.map(
-                      (item, index) => (
-
-                        <div
-                          key={index}
-                          className="dropdown-item"
-                          onClick={() => {
-
-                            setCity(item.name);
-
-                            getWeather(
-                              item.name
-                            );
-
-                            setSuggestions([]);
-
-                          }}
-                        >
-
-                          🌍 {item.name},{" "}
-                          {item.country}
-
-                        </div>
-
-                      )
-                    )
-
-                  }
-
-                </div>
-
-              )
-
-            }
-
-          </div>
-
-          <button
-            onClick={() => {
-
-              getWeather(city);
-
-              setSuggestions([]);
-
-            }}
-          >
-
-            Search
 
           </button>
 
@@ -421,67 +415,77 @@ const App = () => {
 
         }
 
-        {/* WEATHER CARD */}
+        {/* MAIN DASHBOARD */}
 
         {
 
           weather && !loading && (
 
-            <WeatherCard
-              weather={weather}
-            />
+            <div className="dashboard">
+
+              {/* LEFT */}
+
+              <div className="left-panel">
+
+                <WeatherCard
+                  weather={weather}
+                />
+
+              </div>
+
+              {/* RIGHT */}
+
+              <div className="right-panel">
+
+                <h3>
+                  Search History
+                </h3>
+
+                <div className="history-scroll">
+
+                  {
+
+                    history.length > 0 ? (
+
+                      history.map(
+                        (item, index) => (
+
+                          <div
+                            key={index}
+                            className="history-item"
+                            onClick={() =>
+                              getWeather(
+                                item.city
+                              )
+                            }
+                          >
+
+                            🌍 {item.city}
+
+                          </div>
+
+                        )
+                      )
+
+                    ) : (
+
+                      <p>
+                        No history found
+                      </p>
+
+                    )
+
+                  }
+
+                </div>
+
+              </div>
+
+            </div>
 
           )
 
         }
-
-        {/* HISTORY */}
-
-        <div className="history-box">
-
-          <h2>
-            📜 Search History
-          </h2>
-
-          <div className="history-scroll">
-
-            {
-
-              history.length > 0 ? (
-
-                history.map(
-                  (item, index) => (
-
-                    <div
-                      key={index}
-                      className="history-item"
-                      onClick={() =>
-                        getWeather(
-                          item.city
-                        )
-                      }
-                    >
-
-                      🌍 {item.city}
-
-                    </div>
-
-                  )
-                )
-
-              ) : (
-
-                <p>
-                  No history found
-                </p>
-
-              )
-
-            }
-
-          </div>
-
-        </div>
 
       </div>
 

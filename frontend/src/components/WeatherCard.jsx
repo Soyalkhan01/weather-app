@@ -3,16 +3,22 @@ import React from "react";
 const WeatherCard = ({ weather }) => {
 
   if (!weather?.location || !weather?.current) {
-    return <h3>Loading...</h3>;
+    return <h3 className="loading">Loading...</h3>;
   }
 
   return (
 
     <div className="weather-card">
 
+      {/* TOP SECTION */}
+
       <div className="weather-top">
 
-        <div>
+        <div className="weather-left">
+
+          <p className="chance-rain">
+            Chance of rain: {weather.forecast?.forecastday?.[0]?.day?.daily_chance_of_rain || 0}%
+          </p>
 
           <h2 className="city-name">
             {weather.location.name}
@@ -22,150 +28,165 @@ const WeatherCard = ({ weather }) => {
             {weather.location.country}
           </p>
 
-        </div>
+          <h1 className="temperature">
+            {weather.current.temp_c}°
+          </h1>
 
-        <img
-          src={`https:${weather.current.condition.icon}`}
-          className="weather-icon"
-          alt="weather"
-        />
-
-      </div>
-
-      <h1 className="temperature">
-        {weather.current.temp_c}°C
-      </h1>
-
-      <p className="condition">
-        {weather.current.condition.text}
-      </p>
-
-      {/* WEATHER DETAILS */}
-
-      <div className="weather-details">
-
-        <div className="detail-box">
-
-          <span>💧</span>
-
-          <div>
-
-            <h4>Humidity</h4>
-
-            <p>
-              {weather.current.humidity}%
-            </p>
-
-          </div>
+          <p className="condition">
+            {weather.current.condition.text}
+          </p>
 
         </div>
 
-        <div className="detail-box">
+        <div className="weather-right">
 
-          <span>🌬</span>
-
-          <div>
-
-            <h4>Wind</h4>
-
-            <p>
-              {weather.current.wind_kph} kph
-            </p>
-
-          </div>
-
-        </div>
-
-        <div className="detail-box">
-
-          <span>🌡</span>
-
-          <div>
-
-            <h4>Feels Like</h4>
-
-            <p>
-              {weather.current.feelslike_c}°C
-            </p>
-
-          </div>
-
-        </div>
-
-        <div className="detail-box">
-
-          <span>☀</span>
-
-          <div>
-
-            <h4>UV</h4>
-
-            <p>
-              {weather.current.uv}
-            </p>
-
-          </div>
+          <img
+            src={`https:${weather.current.condition.icon}`}
+            className="weather-icon"
+            alt="weather"
+          />
 
         </div>
 
       </div>
 
-      {/* EXTRA INFO */}
+      {/* TODAY FORECAST */}
+
+      <div className="today-forecast">
+
+        <h3>
+          TODAY'S FORECAST
+        </h3>
+
+        <div className="today-scroll">
+
+          {
+
+            weather.forecast?.forecastday?.[0]?.hour
+              ?.filter((_, index) => index % 3 === 0)
+              ?.slice(0, 6)
+              ?.map((hour, i) => (
+
+                <div
+                  key={i}
+                  className="hour-card"
+                >
+
+                  <p>
+                    {hour.time.split(" ")[1]}
+                  </p>
+
+                  <img
+                    src={`https:${hour.condition.icon}`}
+                    alt="hour"
+                  />
+
+                  <h4>
+                    {hour.temp_c}°
+                  </h4>
+
+                </div>
+
+              ))
+
+          }
+
+        </div>
+
+      </div>
+
+      {/* AIR CONDITIONS */}
 
       <div className="extra-info">
 
-        <h3>
-          Weather Details
-        </h3>
+        <div className="air-header">
 
-        <div className="extra-row">
+          <h3>
+            AIR CONDITIONS
+          </h3>
 
-          <span>Pressure</span>
-
-          <span>
-            {weather.current.pressure_mb} mb
-          </span>
+          <button className="see-more-btn">
+            See more
+          </button>
 
         </div>
 
-        <div className="extra-row">
+        <div className="weather-details">
 
-          <span>Visibility</span>
+          <div className="detail-box">
 
-          <span>
-            {weather.current.vis_km} km
-          </span>
+            <span>🌡</span>
 
-        </div>
+            <div>
 
-        <div className="extra-row">
+              <h4>Real Feel</h4>
 
-          <span>Cloud</span>
+              <p>
+                {weather.current.feelslike_c}°
+              </p>
 
-          <span>
-            {weather.current.cloud}%
-          </span>
+            </div>
 
-        </div>
+          </div>
 
-        <div className="extra-row">
+          <div className="detail-box">
 
-          <span>Local Time</span>
+            <span>🌬</span>
 
-          <span>
-            {weather.location.localtime}
-          </span>
+            <div>
+
+              <h4>Wind</h4>
+
+              <p>
+                {weather.current.wind_kph} km/h
+              </p>
+
+            </div>
+
+          </div>
+
+          <div className="detail-box">
+
+            <span>💧</span>
+
+            <div>
+
+              <h4>Humidity</h4>
+
+              <p>
+                {weather.current.humidity}%
+              </p>
+
+            </div>
+
+          </div>
+
+          <div className="detail-box">
+
+            <span>☀</span>
+
+            <div>
+
+              <h4>UV Index</h4>
+
+              <p>
+                {weather.current.uv}
+              </p>
+
+            </div>
+
+          </div>
 
         </div>
 
       </div>
 
-      {/* FORECAST */}
+      {/* 7 DAY FORECAST */}
 
       <div className="forecast-section">
 
         <h3>
-          5 Day Forecast
+          7-DAY FORECAST
         </h3>
 
         <div className="forecast-container">
@@ -180,22 +201,32 @@ const WeatherCard = ({ weather }) => {
                   className="forecast-card"
                 >
 
-                  <p>
-                    {day.date}
+                  <p className="forecast-date">
+                    {
+                      new Date(day.date)
+                        .toLocaleDateString(
+                          "en-US",
+                          { weekday: "short" }
+                        )
+                    }
                   </p>
 
-                  <img
-                    src={`https:${day.day.condition.icon}`}
-                    alt="forecast"
-                  />
+                  <div className="forecast-middle">
+
+                    <img
+                      src={`https:${day.day.condition.icon}`}
+                      alt="forecast"
+                    />
+
+                    <span>
+                      {day.day.condition.text}
+                    </span>
+
+                  </div>
 
                   <h4>
-                    {day.day.avgtemp_c}°C
+                    {day.day.maxtemp_c}° / {day.day.mintemp_c}°
                   </h4>
-
-                  <p>
-                    {day.day.condition.text}
-                  </p>
 
                 </div>
 
