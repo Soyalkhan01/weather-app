@@ -1,399 +1,62 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./App.css";
-import WeatherCard from "./components/WeatherCard";
 
-const App = () => {
-
+function App() {
   const [city, setCity] = useState("");
-  const [weather, setWeather] = useState(null);
-  const [error, setError] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
+  const [data, setData] = useState(null);
 
-  // YOUR BACKEND URL
-  const BACKEND_URL = "https://weather-backend-n5fs.onrender.com";
+  const fetchWeather = async () => {
+    if (!city) return;
 
-  // =========================
-  // GET WEATHER
-  // =========================
-
-  const getWeather = async (selectedCity) => {
-
-    if (!selectedCity) return;
-
-    setLoading(true);
-    setError("");
-
-    try {
-
-      const res = await fetch(
-        `${BACKEND_URL}/weather/${selectedCity}`
-      );
-
-      const data = await res.json();
-
-      if (data.error) {
-
-        setError(data.error.message);
-        setWeather(null);
-
-      } else {
-
-        setWeather(data);
-        setError("");
-        getHistory();
-
-      }
-
-    } catch (err) {
-
-      setError("Server error");
-
-    } finally {
-
-      setLoading(false);
-
-    }
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=YOUR_KEY&units=metric`);
+    const json = await res.json();
+    setData(json);
   };
-
-  // =========================
-  // SEARCH SUGGESTIONS
-  // =========================
-
-  const searchCities = async (value) => {
-
-    setCity(value);
-
-    if (value.trim().length === 0) {
-
-      setSuggestions([]);
-      return;
-
-    }
-
-    try {
-
-      const res = await fetch(
-        `${BACKEND_URL}/search/${value}`
-      );
-
-      const data = await res.json();
-
-      setSuggestions(data);
-
-    } catch (err) {
-
-      console.log(err);
-
-    }
-  };
-
-  // =========================
-  // HISTORY
-  // =========================
-
-  const getHistory = async () => {
-
-    try {
-
-      const res = await fetch(
-        `${BACKEND_URL}/history`
-      );
-
-      const data = await res.json();
-
-      setHistory(data);
-
-    } catch (err) {
-
-      console.log(err);
-
-    }
-  };
-
-  // =========================
-  // AUTO LOCATION WEATHER
-  // =========================
-
-  const getCurrentLocationWeather = () => {
-
-    if (navigator.geolocation) {
-
-      navigator.geolocation.getCurrentPosition(
-
-        async (position) => {
-
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-
-          setLoading(true);
-          setError("");
-
-          try {
-
-            const res = await fetch(
-              `${BACKEND_URL}/weather/${lat},${lon}`
-            );
-
-            const data = await res.json();
-
-            if (data.error) {
-
-              setError(data.error.message);
-
-            } else {
-
-              setWeather(data);
-
-              // AUTO CITY NAME
-              setCity(data.location.name);
-
-              setError("");
-
-              getHistory();
-
-            }
-
-          } catch (err) {
-
-            setError("Location weather failed");
-
-          } finally {
-
-            setLoading(false);
-
-          }
-
-        },
-
-        // IF LOCATION DENIED
-        () => {
-
-          getWeather("Delhi");
-
-        }
-
-      );
-
-    } else {
-
-      getWeather("Delhi");
-
-    }
-  };
-
-  // =========================
-  // ENTER KEY SEARCH
-  // =========================
-
-  const handleKeyPress = (e) => {
-
-    if (e.key === "Enter") {
-
-      getWeather(city);
-
-      setSuggestions([]);
-
-    }
-  };
-
-  // =========================
-  // FIRST LOAD
-  // =========================
-
-  useEffect(() => {
-
-    getCurrentLocationWeather();
-    getHistory();
-
-  }, []);
 
   return (
+    <div className="app-container">
+      <div className="weather-card">
+        <h2 className="title">Live Weather Forecast</h2>
 
-    <div className={darkMode ? "container dark" : "container light"}>
-
-      <div className="weather-box">
-
-        {/* THEME BUTTON */}
-
-        <div className="theme-toggle">
-
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="theme-btn"
-          >
-
-            {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
-
-          </button>
-
+        <div className="input-box">
+          <input
+            type="text"
+            placeholder="Enter City"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+          />
+          <button onClick={fetchWeather}>Search</button>
         </div>
 
-        {/* TITLE */}
-
-        <h1>🌤 Live Weather Forecast</h1>
-
-        {/* SEARCH */}
-
-        <div className="search-box">
-
-          <div className="search-container">
-
-            <input
-              type="text"
-              placeholder="Search any city, village, country..."
-              value={city}
-              onChange={(e) =>
-                searchCities(e.target.value)
-              }
-              onKeyDown={handleKeyPress}
-            />
-
-            {
-
-              suggestions.length > 0 && (
-
-                <div className="dropdown">
-
-                  {
-
-                    suggestions.map((item, index) => (
-
-                      <div
-                        key={index}
-                        className="dropdown-item"
-                        onClick={() => {
-
-                          const fullLocation =
-                            `${item.name}`;
-
-                          setCity(fullLocation);
-
-                          getWeather(fullLocation);
-
-                          setSuggestions([]);
-
-                        }}
-                      >
-
-                        🌍 {item.name}, {item.region}, {item.country}
-
-                      </div>
-
-                    ))
-
-                  }
-
-                </div>
-
-              )
-
-            }
-
-          </div>
-
-          <button
-            onClick={() => {
-
-              getWeather(city);
-              setSuggestions([]);
-
-            }}
-          >
-
-            Search
-
-          </button>
-
-        </div>
-
-        {/* LOADING */}
-
-        {
-
-          loading && (
-
-            <p className="loading">
-
-              Loading weather...
-
-            </p>
-
-          )
-
-        }
-
-        {/* ERROR */}
-
-        {
-
-          error && (
-
-            <p className="error">
-
-              {error}
-
-            </p>
-
-          )
-
-        }
-
-        {/* WEATHER */}
-
-        {
-
-          weather && !loading && (
-
-            <WeatherCard weather={weather} />
-
-          )
-
-        }
-
-        {/* HISTORY */}
-
-        <div className="history-box">
-
-          <h2>📜 Search History</h2>
-
-          {
-
-            history.length > 0 ? (
-
-              history.map((item, index) => (
-
-                <div
-                  key={index}
-                  className="history-item"
-                  onClick={() =>
-                    getWeather(item.city)
-                  }
-                >
-
-                  🌍 {item.city}
-
-                </div>
-
-              ))
-
-            ) : (
-
-              <p>No history found</p>
-
-            )
-
-          }
-
-        </div>
-
+        {data && (
+          <>
+            <div className="weather-top">
+              <div>
+                <h2 className="city-name">{data.name}</h2>
+                <p>{data.sys.country}</p>
+              </div>
+              <div className="temperature">{data.main.temp}°C</div>
+            </div>
+
+            <div className="weather-details">
+              <div className="detail-box">
+                <span>Humidity</span> {data.main.humidity}%
+              </div>
+              <div className="detail-box">
+                <span>Wind</span> {data.wind.speed} km/h
+              </div>
+              <div className="detail-box">
+                <span>Pressure</span> {data.main.pressure} mb
+              </div>
+              <div className="detail-box">
+                <span>Visibility</span> {data.visibility / 1000} km
+              </div>
+            </div>
+          </>
+        )}
       </div>
-
     </div>
-
   );
-};
+}
 
 export default App;

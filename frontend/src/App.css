@@ -1,93 +1,58 @@
-/* =======================================
-   GLOBAL
-========================================== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: "Poppins", sans-serif;
-  background: #0f172a;
-  color: #fff;
-  padding: 20px;
-}
-
+/* PAGE BACKGROUND */
 .app-container {
-  max-width: 900px;
-  margin: auto;
-}
-
-/* =======================================
-   SEARCH BOX
-========================================== */
-.search-area {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0d47a1, #1976d2);
+  padding: 20px;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 25px;
+  justify-content: center;
+  align-items: flex-start;
+  color: #fff;
 }
 
-.search-box {
-  height: 50px;
-  padding: 0 15px;
-  font-size: 18px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-}
-
-.suggestions {
-  background: #1e293b;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.suggestions p {
-  padding: 8px;
-  cursor: pointer;
-  border-radius: 6px;
-}
-
-.suggestions p:hover {
-  background: #334155;
-}
-
-/* =======================================
-   HISTORY
-========================================== */
-.history-box {
-  margin-top: 15px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.history-item {
-  background: #1e293b;
-  padding: 8px 15px;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.history-item:hover {
-  background: #334155;
-}
-
-/* =======================================
-   WEATHER CARD
-========================================== */
+/* MAIN CARD */
 .weather-card {
   width: 100%;
-  background: #1e293b;
-  padding: 25px;
-  border-radius: 20px;
-  margin-top: 20px;
-  box-shadow: 0 0 20px #0004;
+  max-width: 450px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  padding: 20px;
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
 }
 
+/* TITLE */
+.title {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* INPUT BOX */
+.input-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.input-box input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  outline: none;
+  border: none;
+}
+
+.input-box button {
+  padding: 10px 15px;
+  background: #ffb300;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: black;
+  font-weight: bold;
+}
+
+/* TOP INFO */
 .weather-top {
   display: flex;
   justify-content: space-between;
@@ -95,148 +60,50 @@ body {
 }
 
 .city-name {
-  font-size: 32px;
-  font-weight: 700;
-}
-
-.country {
-  font-size: 16px;
-  opacity: 0.7;
-}
-
-.weather-icon {
-  width: 120px;
+  font-size: 1.8rem;
+  font-weight: bold;
 }
 
 .temperature {
-  font-size: 80px;
-  text-align: center;
-  margin: 10px 0;
+  font-size: 2.8rem;
+  font-weight: bold;
 }
 
-.condition {
-  text-align: center;
-  font-size: 20px;
-  opacity: 0.9;
-}
-
-/* =======================================
-   DETAILS GRID
-========================================== */
+/* DETAILS GRID */
 .weather-details {
-  margin-top: 20px;
   display: grid;
-  gap: 15px;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .detail-box {
-  background: #334155;
-  padding: 15px;
-  border-radius: 14px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-/* =======================================
-   EXTRA INFO
-========================================== */
-.extra-info {
-  margin-top: 25px;
-  background: #334155;
-  padding: 20px;
-  border-radius: 14px;
-}
-
-.extra-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid #ffffff28;
-}
-
-/* =======================================
-   5 DAY FORECAST
-========================================== */
-.forecast-section {
-  margin-top: 30px;
-}
-
-.forecast-container {
-  display: grid;
-  gap: 15px;
-  grid-template-columns: repeat(5, 1fr);
-}
-
-.forecast-card {
-  background: #334155;
+  background: rgba(255, 255, 255, 0.08);
   padding: 12px;
-  border-radius: 12px;
+  border-radius: 10px;
   text-align: center;
+  font-size: 1rem;
 }
 
-/* =======================================
-   LOADING
-========================================== */
-.loader {
-  margin: auto;
-  text-align: center;
-  font-size: 22px;
-  margin-top: 20px;
-}
-
-/* =======================================
-   RESPONSIVE (VERY IMPORTANT)
-========================================== */
-
-/* MOBILE */
-@media (max-width: 600px) {
+/* 📱 MOBILE RESPONSIVE */
+@media (max-width: 480px) {
   .weather-card {
-    padding: 18px;
-  }
-
-  .weather-top {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .weather-icon {
-    width: 90px;
-    margin-top: 10px;
-  }
-
-  .temperature {
-    font-size: 55px;
+    max-width: 100%;
+    padding: 16px;
   }
 
   .weather-details {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
   }
 
-  .forecast-container {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* TABLET */
-@media (min-width: 600px) and (max-width: 900px) {
-  .weather-details {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .forecast-container {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* LARGE DESKTOP */
-@media (min-width: 1000px) {
   .temperature {
-    font-size: 95px;
+    font-size: 2.2rem;
   }
+}
 
-  .weather-icon {
-    width: 140px;
+/* 💻 TABLET RESPONSIVE */
+@media (min-width: 481px) and (max-width: 768px) {
+  .weather-card {
+    max-width: 90%;
   }
 }
