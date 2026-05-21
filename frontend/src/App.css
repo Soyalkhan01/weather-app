@@ -1,7 +1,12 @@
+/* =========================
+RESET + PWA BASE
+========================= */
+
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
+-webkit-tap-highlight-color: transparent;
 }
 
 html{
@@ -10,21 +15,26 @@ scroll-behavior:smooth;
 }
 
 body{
-font-family:Arial,sans-serif;
+font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 min-height:100vh;
-transition:0.3s;
 overflow-x:hidden;
+transition:0.3s;
 }
 
+/* Smooth image scaling */
 img{
 max-width:100%;
 height:auto;
 display:block;
 }
 
+/* =========================
+THEME SYSTEM
+========================= */
+
 .dark{
 background:linear-gradient(135deg,#0f172a,#1e3a8a);
-color:#ffffff;
+color:#fff;
 }
 
 .light{
@@ -32,14 +42,13 @@ background:linear-gradient(135deg,#dbeafe,#f8fafc);
 color:#111827;
 }
 
-/* IMPORTANT GLOBAL FIX */
-.dark *{
+.dark *,.light *{
 color:inherit;
 }
 
-.light *{
-color:inherit;
-}
+/* =========================
+APP CONTAINER (PWA STYLE)
+========================= */
 
 .container{
 width:100%;
@@ -47,258 +56,206 @@ min-height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
-padding:15px;
+padding:12px;
 }
 
+/* MAIN APP CARD */
 .weather-box{
 width:100%;
-max-width:1100px;
+max-width:1050px;
+min-height:100vh;
 background:rgba(255,255,255,0.12);
-backdrop-filter:blur(15px);
-border:1px solid rgba(255,255,255,0.2);
-border-radius:35px;
-padding:22px;
-box-shadow:0 10px 40px rgba(0,0,0,0.3);
-transition:0.3s;
+backdrop-filter:blur(18px);
+border:1px solid rgba(255,255,255,0.15);
+border-radius:28px;
+padding:18px;
+box-shadow:0 12px 40px rgba(0,0,0,0.35);
 overflow:hidden;
 }
 
-.dark .weather-box{
-color:white;
+.light .weather-box{
+background:rgba(255,255,255,0.85);
 }
 
-.light .weather-box{
-background:rgba(255,255,255,0.8);
-color:#111827;
-}
+/* =========================
+TITLE
+========================= */
 
 .weather-box h1{
 text-align:center;
-margin-bottom:20px;
-font-size:42px;
-font-weight:bold;
-word-break:break-word;
+font-size:clamp(22px, 4vw, 40px);
+margin-bottom:16px;
+font-weight:800;
 }
+
+/* =========================
+TOP BAR (THEME)
+========================= */
 
 .theme-toggle{
 display:flex;
 justify-content:flex-end;
-margin-bottom:15px;
-flex-wrap:wrap;
+margin-bottom:12px;
 }
 
 .theme-btn{
-padding:10px 18px;
+padding:10px 14px;
 border:none;
 border-radius:12px;
-cursor:pointer;
-font-size:15px;
-font-weight:bold;
 background:#38bdf8;
-color:white;
-transition:0.3s;
+color:#fff;
+font-weight:700;
+cursor:pointer;
+transition:0.2s;
 }
 
-.theme-btn:hover{
-background:#0ea5e9;
-transform:translateY(-2px);
+.theme-btn:active{
+transform:scale(0.96);
 }
+
+/* =========================
+SEARCH (PWA INPUT STYLE)
+========================= */
 
 .search-box{
-width:100%;
 display:flex;
-gap:15px;
-margin-bottom:20px;
-align-items:flex-start;
+gap:10px;
+margin-bottom:16px;
 flex-wrap:wrap;
 }
 
 .search-container{
-position:relative;
 flex:1;
-width:100%;
+position:relative;
 min-width:0;
 }
 
 .search-box input{
 width:100%;
-padding:16px;
+padding:14px;
 border:none;
 outline:none;
-border-radius:16px;
-font-size:17px;
-transition:0.3s;
-}
-
-.dark .search-box input{
+border-radius:14px;
+font-size:16px;
 background:rgba(255,255,255,0.15);
-color:white;
 }
 
 .light .search-box input{
 background:#e2e8f0;
-color:#111827;
 }
 
-.dark .search-box input::placeholder{
-color:#dbeafe;
-}
-
-.light .search-box input::placeholder{
-color:#475569;
-}
-
+/* BUTTON FULL TOUCH FRIENDLY */
 .search-box button{
-width:150px;
+width:140px;
 min-width:120px;
-height:55px;
+height:48px;
 border:none;
-border-radius:16px;
+border-radius:14px;
 background:#38bdf8;
-color:white;
-font-size:17px;
-font-weight:bold;
+color:#fff;
+font-weight:700;
 cursor:pointer;
-transition:0.3s;
 }
 
-.search-box button:hover{
-background:#0ea5e9;
-transform:translateY(-2px);
+.search-box button:active{
+transform:scale(0.96);
 }
+
+/* =========================
+DROPDOWN (MOBILE SAFE)
+========================= */
 
 .dropdown{
 position:absolute;
 top:100%;
 left:0;
 width:100%;
-margin-top:8px;
-border-radius:15px;
-max-height:220px;
+margin-top:6px;
+border-radius:12px;
+max-height:200px;
 overflow-y:auto;
-z-index:1000;
-box-shadow:0 10px 30px rgba(0,0,0,0.3);
+z-index:999;
 }
 
-.dark .dropdown{
-background:#1e293b;
-}
-
-.light .dropdown{
-background:white;
-}
-
-.dropdown::-webkit-scrollbar{
-width:5px;
-}
-
-.dropdown::-webkit-scrollbar-thumb{
-background:#38bdf8;
-border-radius:10px;
-}
+.dark .dropdown{ background:#1e293b; }
+.light .dropdown{ background:#fff; }
 
 .dropdown-item{
-padding:14px 18px;
+padding:12px;
 cursor:pointer;
 border-bottom:1px solid rgba(255,255,255,0.08);
-transition:0.3s;
-word-break:break-word;
-}
-
-.dark .dropdown-item{
-color:white;
 }
 
 .light .dropdown-item{
-color:#111827;
 border-bottom:1px solid #e5e7eb;
 }
 
-.dropdown-item:hover{
+.dropdown-item:active{
 background:#38bdf8;
-color:white;
+color:#fff;
 }
 
-.weather-card{
-width:100%;
-overflow:hidden;
-}
+/* =========================
+WEATHER HEADER
+========================= */
 
 .weather-top{
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:15px;
-gap:20px;
+gap:12px;
 flex-wrap:wrap;
 }
 
 .city-name{
-font-size:42px;
-font-weight:bold;
+font-size:clamp(22px, 4vw, 40px);
+font-weight:800;
 word-break:break-word;
 }
 
 .country{
-margin-top:6px;
-font-size:18px;
-word-break:break-word;
-}
-
-.dark .country{
-color:#dbeafe;
-}
-
-.light .country{
-color:#475569;
+font-size:clamp(13px, 2vw, 18px);
+opacity:0.8;
 }
 
 .weather-icon{
-width:120px;
-object-fit:contain;
+width:clamp(70px, 12vw, 120px);
 }
+
+/* =========================
+TEMPERATURE (BIG HERO TEXT)
+========================= */
 
 .temperature{
 text-align:center;
-font-size:75px;
-font-weight:bold;
-margin:5px 0;
-word-break:break-word;
+font-size:clamp(42px, 10vw, 75px);
+font-weight:900;
+margin:6px 0;
 }
 
 .condition{
 text-align:center;
-font-size:24px;
-margin-bottom:20px;
-word-break:break-word;
+font-size:clamp(16px, 3vw, 24px);
+opacity:0.9;
 }
 
-.dark .condition{
-color:#dbeafe;
-}
-
-.light .condition{
-color:#475569;
-}
+/* =========================
+DETAILS (AUTO GRID FIX)
+========================= */
 
 .weather-details{
 display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:12px;
-margin-bottom:18px;
+grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+gap:10px;
+margin-top:14px;
 }
 
 .detail-box{
-padding:15px;
-border-radius:18px;
 display:flex;
-align-items:center;
 gap:10px;
-transition:0.3s;
-min-width:0;
-}
-
-.dark .detail-box{
+align-items:center;
+padding:12px;
+border-radius:16px;
 background:rgba(255,255,255,0.12);
 }
 
@@ -307,39 +264,27 @@ background:#e2e8f0;
 }
 
 .detail-box span{
-font-size:28px;
-flex-shrink:0;
+font-size:24px;
 }
 
 .detail-box h4{
-font-size:14px;
-margin-bottom:4px;
-word-break:break-word;
-}
-
-.dark .detail-box h4{
-color:#bfdbfe;
-}
-
-.light .detail-box h4{
-color:#475569;
+font-size:13px;
+opacity:0.8;
 }
 
 .detail-box p{
-font-size:18px;
-font-weight:bold;
-word-break:break-word;
+font-size:16px;
+font-weight:700;
 }
+
+/* =========================
+EXTRA INFO (CLEAN APP STYLE)
+========================= */
 
 .extra-info{
-padding:18px;
-border-radius:20px;
-margin-top:20px;
-transition:0.3s;
-overflow:hidden;
-}
-
-.dark .extra-info{
+margin-top:16px;
+padding:14px;
+border-radius:18px;
 background:rgba(255,255,255,0.12);
 }
 
@@ -349,109 +294,42 @@ background:#e2e8f0;
 
 .extra-info h3{
 text-align:center;
-font-size:24px;
-margin-bottom:15px;
-word-break:break-word;
+font-size:18px;
+margin-bottom:10px;
 }
 
 .extra-row{
 display:flex;
 justify-content:space-between;
-align-items:center;
-gap:20px;
-margin:10px 0;
-font-size:16px;
+padding:6px 0;
+font-size:14px;
 flex-wrap:wrap;
-word-break:break-word;
 }
 
-.error{
-text-align:center;
-color:#ef4444;
-margin-top:10px;
-font-size:16px;
-font-weight:bold;
-word-break:break-word;
-}
-
-.loading{
-text-align:center;
-font-size:18px;
-font-weight:bold;
-margin:20px 0;
-word-break:break-word;
-}
-
-.history-box{
-margin-top:20px;
-padding:18px;
-border-radius:20px;
-transition:0.3s;
-overflow:hidden;
-}
-
-.dark .history-box{
-background:rgba(255,255,255,0.1);
-}
-
-.light .history-box{
-background:#e2e8f0;
-}
-
-.history-box h2{
-margin-bottom:15px;
-word-break:break-word;
-}
-
-.history-item{
-padding:12px;
-border-radius:10px;
-cursor:pointer;
-margin-bottom:10px;
-transition:0.3s;
-word-break:break-word;
-}
-
-.dark .history-item{
-background:rgba(255,255,255,0.08);
-}
-
-.light .history-item{
-background:white;
-}
-
-.history-item:hover{
-background:#38bdf8;
-color:white;
-}
+/* =========================
+FORECAST (PWA CARDS)
+========================= */
 
 .forecast-section{
-margin-top:20px;
-overflow:hidden;
+margin-top:18px;
 }
 
 .forecast-section h3{
-margin-bottom:15px;
 text-align:center;
-font-size:24px;
-word-break:break-word;
+font-size:18px;
+margin-bottom:10px;
 }
 
 .forecast-container{
 display:grid;
-grid-template-columns:repeat(5,1fr);
-gap:12px;
+grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
+gap:10px;
 }
 
 .forecast-card{
-padding:15px;
-border-radius:18px;
+padding:12px;
+border-radius:16px;
 text-align:center;
-transition:0.3s;
-overflow:hidden;
-}
-
-.dark .forecast-card{
 background:rgba(255,255,255,0.12);
 }
 
@@ -460,204 +338,70 @@ background:#e2e8f0;
 }
 
 .forecast-card img{
-width:55px;
+width:50px;
 margin:auto;
 }
 
 .forecast-card h4{
-margin:10px 0;
+font-size:18px;
+margin:6px 0;
+}
+
+/* =========================
+MOBILE PWA BEHAVIOR
+========================= */
+
+@media (max-width:768px){
+
+.container{
+padding:0;
+align-items:flex-start;
+}
+
+.weather-box{
+border-radius:0;
+min-height:100vh;
+padding:14px;
+}
+
+.search-box{
+flex-direction:column;
+}
+
+.search-box button{
+width:100%;
+}
+
+.theme-toggle{
+justify-content:center;
+}
+
+.weather-top{
+flex-direction:column;
+text-align:center;
+}
+}
+
+/* =========================
+SMALL MOBILE
+========================= */
+
+@media (max-width:480px){
+
+html{
+font-size:14px;
+}
+
+.temperature{
+font-size:40px;
+}
+
+.city-name{
 font-size:22px;
-word-break:break-word;
 }
 
-.forecast-card p{
-word-break:break-word;
+.detail-box{
+flex-direction:column;
+text-align:center;
 }
-/* ========================= */
-/* LARGE LAPTOP */
-/* ========================= */
-@media (max-width: 1200px) {
-  .weather-box {
-    max-width: 1000px;
-  }
-
-  .weather-details {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .forecast-container {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* ========================= */
-/* TABLET */
-/* ========================= */
-@media (max-width: 992px) {
-  .container {
-    padding: 15px;
-  }
-
-  .weather-box {
-    padding: 20px;
-    border-radius: 25px;
-  }
-
-  .temperature {
-    font-size: 60px;
-  }
-
-  .city-name {
-    font-size: 34px;
-  }
-
-  .forecast-container {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* ========================= */
-/* MOBILE (IMPORTANT FIX) */
-/* ========================= */
-@media (max-width: 768px) {
-
-  .container {
-    padding: 10px;
-    align-items: flex-start;
-  }
-
-  .weather-box {
-    width: 100%;
-    min-height: 100vh;
-    border-radius: 0;
-    padding: 18px;
-  }
-
-  .weather-box h1 {
-    font-size: 28px;
-  }
-
-  .search-box {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .search-box button {
-    width: 100%;
-    height: 48px;
-  }
-
-  .weather-top {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .city-name {
-    font-size: 30px;
-  }
-
-  .temperature {
-    font-size: 52px;
-  }
-
-  .condition {
-    font-size: 18px;
-  }
-
-  /* FIX: DETAILS NOT MERGING */
-  .weather-details {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
-  .detail-box {
-    padding: 12px;
-    flex-direction: column;
-    text-align: center;
-  }
-
-  /* FIX: FORECAST UI */
-  .forecast-container {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .forecast-card {
-    padding: 12px;
-  }
-
-  .theme-toggle {
-    justify-content: center;
-  }
-}
-
-/* ========================= */
-/* SMALL MOBILE (REAL APP FEEL FIX) */
-/* ========================= */
-@media (max-width: 480px) {
-
-  html {
-    font-size: 14px;
-  }
-
-  .weather-box {
-    padding: 14px;
-  }
-
-  .weather-box h1 {
-    font-size: 24px;
-  }
-
-  .city-name {
-    font-size: 26px;
-  }
-
-  .temperature {
-    font-size: 44px;
-  }
-
-  .condition {
-    font-size: 16px;
-  }
-
-  /* FIX: SINGLE COLUMN (NO MERGING) */
-  .weather-details {
-    grid-template-columns: 1fr;
-  }
-
-  .forecast-container {
-    grid-template-columns: 1fr;
-  }
-
-  .search-box input {
-    font-size: 14px;
-    padding: 12px;
-  }
-
-  .search-box button {
-    font-size: 14px;
-  }
-
-  .extra-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-/* ========================= */
-/* EXTRA SMALL FIX */
-/* ========================= */
-@media (max-width: 350px) {
-
-  .temperature {
-    font-size: 38px;
-  }
-
-  .city-name {
-    font-size: 22px;
-  }
-
-  .forecast-card {
-    padding: 10px;
-  }
 }
