@@ -14,20 +14,20 @@ const App = () => {
   const BACKEND_URL = "https://weather-backend-n5fs.onrender.com";
 
   // =========================
-  // AUTO REFRESH (PWA FEATURE)
+  // AUTO REFRESH (PWA)
   // =========================
   useEffect(() => {
     const interval = setInterval(() => {
       if (city) {
         getWeather(city);
       }
-    }, 300000); // 5 min refresh
+    }, 300000); // 5 min
 
     return () => clearInterval(interval);
   }, [city]);
 
   // =========================
-  // WEATHER FETCH (SAFE)
+  // WEATHER FETCH
   // =========================
   const getWeather = async (selectedCity) => {
     if (!selectedCity?.trim()) return;
@@ -43,7 +43,7 @@ const App = () => {
       const data = await res.json();
 
       if (!res.ok || data?.error) {
-        setError(data?.error?.message || "City not found");
+        setError("City not found");
         setWeather(null);
       } else {
         setWeather(data);
@@ -52,14 +52,13 @@ const App = () => {
       }
     } catch (err) {
       setError("Server error");
-      setWeather(null);
     } finally {
       setLoading(false);
     }
   };
 
   // =========================
-  // SEARCH SUGGESTIONS
+  // SEARCH
   // =========================
   const searchCities = async (value) => {
     setCity(value);
@@ -94,11 +93,26 @@ const App = () => {
   };
 
   // =========================
-  // GEOLOCATION (FIXED + FALLBACK)
+  // 🚀 FIXED AUTO LOCATION (GPS + IP FALLBACK)
   // =========================
+  const getIPLocationWeather = async () => {
+    try {
+      const res = await fetch("https://ipapi.co/json/");
+      const data = await res.json();
+
+      if (data?.city) {
+        getWeather(data.city);
+      } else {
+        getWeather("Delhi");
+      }
+    } catch (err) {
+      getWeather("Delhi");
+    }
+  };
+
   const getCurrentLocationWeather = () => {
     if (!navigator.geolocation) {
-      getWeather("Delhi");
+      getIPLocationWeather();
       return;
     }
 
@@ -117,26 +131,26 @@ const App = () => {
           const data = await res.json();
 
           if (data?.error) {
-            getWeather("Delhi");
+            getIPLocationWeather();
           } else {
             setWeather(data);
             setCity(data.location?.name || "");
             getHistory();
           }
         } catch (err) {
-          getWeather("Delhi");
+          getIPLocationWeather();
         } finally {
           setLoading(false);
         }
       },
       () => {
-        getWeather("Delhi");
+        getIPLocationWeather();
       }
     );
   };
 
   // =========================
-  // ENTER KEY SEARCH
+  // ENTER KEY
   // =========================
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
@@ -154,7 +168,7 @@ const App = () => {
   }, []);
 
   // =========================
-  // WEATHER UI CLASS (ANIMATION FEATURE)
+  // WEATHER THEME CLASS
   // =========================
   const getWeatherClass = () => {
     if (!weather) return "";
@@ -173,7 +187,7 @@ const App = () => {
 
       <div className="weather-box">
 
-        {/* THEME TOGGLE */}
+        {/* THEME */}
         <div className="theme-toggle">
           <button
             onClick={() => setDarkMode(!darkMode)}
