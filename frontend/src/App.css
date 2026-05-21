@@ -473,6 +473,17 @@ word-break:break-word;
 .forecast-card p{
 word-break:break-word;
 }
+.rain {
+  background: linear-gradient(#0f172a, #1e293b);
+}
+
+.sunny {
+  background: linear-gradient(#38bdf8, #facc15);
+}
+
+.cloudy {
+  background: linear-gradient(#94a3b8, #64748b);
+}
 /* ========================= */
 /* LARGE LAPTOP */
 /* ========================= */

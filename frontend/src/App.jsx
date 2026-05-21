@@ -14,7 +14,20 @@ const App = () => {
   const BACKEND_URL = "https://weather-backend-n5fs.onrender.com";
 
   // =========================
-  // SAFE WEATHER FETCH
+  // AUTO REFRESH (PWA FEATURE)
+  // =========================
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (city) {
+        getWeather(city);
+      }
+    }, 300000); // 5 min refresh
+
+    return () => clearInterval(interval);
+  }, [city]);
+
+  // =========================
+  // WEATHER FETCH (SAFE)
   // =========================
   const getWeather = async (selectedCity) => {
     if (!selectedCity?.trim()) return;
@@ -46,7 +59,7 @@ const App = () => {
   };
 
   // =========================
-  // SEARCH SUGGESTIONS (SAFE)
+  // SEARCH SUGGESTIONS
   // =========================
   const searchCities = async (value) => {
     setCity(value);
@@ -81,7 +94,7 @@ const App = () => {
   };
 
   // =========================
-  // GEOLOCATION FIXED
+  // GEOLOCATION (FIXED + FALLBACK)
   // =========================
   const getCurrentLocationWeather = () => {
     if (!navigator.geolocation) {
@@ -117,13 +130,13 @@ const App = () => {
         }
       },
       () => {
-        getWeather("Delhi"); // fallback
+        getWeather("Delhi");
       }
     );
   };
 
   // =========================
-  // ENTER KEY
+  // ENTER KEY SEARCH
   // =========================
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
@@ -132,17 +145,35 @@ const App = () => {
     }
   };
 
+  // =========================
+  // FIRST LOAD
+  // =========================
   useEffect(() => {
     getCurrentLocationWeather();
     getHistory();
   }, []);
 
+  // =========================
+  // WEATHER UI CLASS (ANIMATION FEATURE)
+  // =========================
+  const getWeatherClass = () => {
+    if (!weather) return "";
+
+    const text = weather.current.condition.text.toLowerCase();
+
+    if (text.includes("rain")) return "rain";
+    if (text.includes("sun") || text.includes("clear")) return "sunny";
+    if (text.includes("cloud")) return "cloudy";
+
+    return "";
+  };
+
   return (
-    <div className={darkMode ? "container dark" : "container light"}>
+    <div className={`${darkMode ? "container dark" : "container light"} ${getWeatherClass()}`}>
 
       <div className="weather-box">
 
-        {/* THEME */}
+        {/* THEME TOGGLE */}
         <div className="theme-toggle">
           <button
             onClick={() => setDarkMode(!darkMode)}
@@ -152,6 +183,7 @@ const App = () => {
           </button>
         </div>
 
+        {/* TITLE */}
         <h1>🌤 Live Weather Forecast</h1>
 
         {/* SEARCH */}
@@ -175,9 +207,8 @@ const App = () => {
                     key={index}
                     className="dropdown-item"
                     onClick={() => {
-                      const name = item.name;
-                      setCity(name);
-                      getWeather(name);
+                      setCity(item.name);
+                      getWeather(item.name);
                       setSuggestions([]);
                     }}
                   >
@@ -202,17 +233,17 @@ const App = () => {
         </div>
 
         {/* LOADING */}
-        {loading && <p className="loading">Loading...</p>}
+        {loading && <p className="loading">Loading weather...</p>}
 
         {/* ERROR */}
         {error && <p className="error">{error}</p>}
 
-        {/* WEATHER SAFE RENDER */}
+        {/* WEATHER */}
         {weather && !loading && (
           <WeatherCard weather={weather} />
         )}
 
-        {/* HISTORY SAFE */}
+        {/* HISTORY */}
         <div className="history-box">
           <h2>📜 Search History</h2>
 
