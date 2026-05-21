@@ -3,126 +3,186 @@ import React from "react";
 const WeatherCard = ({ weather }) => {
 
   if (!weather?.location || !weather?.current) {
-    return null;
+    return <h3>Loading...</h3>;
   }
 
   return (
 
-    <div className="dashboard">
+    <div className="weather-card">
 
-      {/* LEFT */}
+      <div className="weather-top">
 
-      <div className="left-panel">
+        <div>
 
-        <div className="hero-card">
+          <h2 className="city-name">
+            {weather.location.name}
+          </h2>
 
-          <div className="hero-info">
-
-            <h2>
-              {weather.location.name}
-            </h2>
-
-            <p>
-              {weather.location.country}
-            </p>
-
-            <h1 className="temperature">
-              {weather.current.temp_c}°
-            </h1>
-
-            <p>
-              {weather.current.condition.text}
-            </p>
-
-          </div>
-
-          <img
-            src={`https:${weather.current.condition.icon}`}
-            alt="weather"
-            className="weather-icon"
-          />
+          <p className="country">
+            {weather.location.country}
+          </p>
 
         </div>
 
-        {/* DETAILS */}
+        <img
+          src={`https:${weather.current.condition.icon}`}
+          className="weather-icon"
+          alt="weather"
+        />
 
-        <div className="weather-details">
+      </div>
 
-          <div className="detail-box">
-            <span>💧</span>
+      <h1 className="temperature">
+        {weather.current.temp_c}°C
+      </h1>
+
+      <p className="condition">
+        {weather.current.condition.text}
+      </p>
+
+      {/* WEATHER DETAILS */}
+
+      <div className="weather-details">
+
+        <div className="detail-box">
+
+          <span>💧</span>
+
+          <div>
+
             <h4>Humidity</h4>
-            <p>{weather.current.humidity}%</p>
+
+            <p>
+              {weather.current.humidity}%
+            </p>
+
           </div>
 
-          <div className="detail-box">
-            <span>🌬</span>
+        </div>
+
+        <div className="detail-box">
+
+          <span>🌬</span>
+
+          <div>
+
             <h4>Wind</h4>
-            <p>{weather.current.wind_kph} km/h</p>
+
+            <p>
+              {weather.current.wind_kph} kph
+            </p>
+
           </div>
 
-          <div className="detail-box">
-            <span>🌡</span>
+        </div>
+
+        <div className="detail-box">
+
+          <span>🌡</span>
+
+          <div>
+
             <h4>Feels Like</h4>
-            <p>{weather.current.feelslike_c}°</p>
-          </div>
 
-          <div className="detail-box">
-            <span>☀</span>
-            <h4>UV Index</h4>
-            <p>{weather.current.uv}</p>
-          </div>
+            <p>
+              {weather.current.feelslike_c}°C
+            </p>
 
-        </div>
-
-        {/* EXTRA */}
-
-        <div className="extra-info">
-
-          <h3>
-            Air Conditions
-          </h3>
-
-          <div className="extra-row">
-            <span>Pressure</span>
-            <span>{weather.current.pressure_mb} mb</span>
-          </div>
-
-          <div className="extra-row">
-            <span>Visibility</span>
-            <span>{weather.current.vis_km} km</span>
-          </div>
-
-          <div className="extra-row">
-            <span>Cloud</span>
-            <span>{weather.current.cloud}%</span>
-          </div>
-
-          <div className="extra-row">
-            <span>Local Time</span>
-            <span>{weather.location.localtime}</span>
           </div>
 
         </div>
 
-        {/* FORECAST */}
+        <div className="detail-box">
 
-        <div className="forecast-section">
+          <span>☀</span>
 
-          <h3>
-            5-Day Forecast
-          </h3>
+          <div>
 
-          <div className="forecast-container">
+            <h4>UV</h4>
 
-            {
-              weather.forecast?.forecastday?.map((day, i) => (
+            <p>
+              {weather.current.uv}
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* EXTRA INFO */}
+
+      <div className="extra-info">
+
+        <h3>
+          Weather Details
+        </h3>
+
+        <div className="extra-row">
+
+          <span>Pressure</span>
+
+          <span>
+            {weather.current.pressure_mb} mb
+          </span>
+
+        </div>
+
+        <div className="extra-row">
+
+          <span>Visibility</span>
+
+          <span>
+            {weather.current.vis_km} km
+          </span>
+
+        </div>
+
+        <div className="extra-row">
+
+          <span>Cloud</span>
+
+          <span>
+            {weather.current.cloud}%
+          </span>
+
+        </div>
+
+        <div className="extra-row">
+
+          <span>Local Time</span>
+
+          <span>
+            {weather.location.localtime}
+          </span>
+
+        </div>
+
+      </div>
+
+      {/* FORECAST */}
+
+      <div className="forecast-section">
+
+        <h3>
+          5 Day Forecast
+        </h3>
+
+        <div className="forecast-container">
+
+          {
+
+            weather.forecast?.forecastday?.map(
+              (day, i) => (
 
                 <div
-                  className="forecast-card"
                   key={i}
+                  className="forecast-card"
                 >
 
-                  <p>{day.date}</p>
+                  <p>
+                    {day.date}
+                  </p>
 
                   <img
                     src={`https:${day.day.condition.icon}`}
@@ -130,7 +190,7 @@ const WeatherCard = ({ weather }) => {
                   />
 
                   <h4>
-                    {day.day.avgtemp_c}°
+                    {day.day.avgtemp_c}°C
                   </h4>
 
                   <p>
@@ -139,10 +199,10 @@ const WeatherCard = ({ weather }) => {
 
                 </div>
 
-              ))
-            }
+              )
+            )
 
-          </div>
+          }
 
         </div>
 
