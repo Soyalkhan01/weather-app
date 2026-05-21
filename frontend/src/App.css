@@ -1,7 +1,7 @@
 body {
   font-family: Arial, sans-serif;
   min-height: 100vh;
-  transition: 0.3s;
+  transition: background 0.3s, color 0.3s;
   overflow-x: hidden;
   margin: 0;
   padding: 0;
@@ -31,13 +31,13 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 24px; /* Laptop standard padding */
 }
 
 .weather-box {
   width: 100%;
-  max-width: 1200px; /* Standard clean laptop width */
-  padding: 24px;
+  max-width: 1200px;
+  padding: 30px;
   border-radius: 30px;
   transition: 0.3s;
   overflow: hidden;
@@ -52,7 +52,7 @@ body {
 .weather-box h1 {
   text-align: center;
   margin-bottom: 25px;
-  font-size: clamp(28px, 4vw, 42px); /* Responsive typography */
+  font-size: clamp(24px, 5vw, 42px); /* Ultra-flexible fluid size */
   font-weight: bold;
 }
 
@@ -120,9 +120,7 @@ body {
   transition: 0.2s ease-in-out;
 }
 
-.search-box button:hover {
-  opacity: 0.9;
-}
+.search-box button:hover { opacity: 0.9; }
 
 /* ========================= */
 /* DROPDOWN */
@@ -137,6 +135,7 @@ body {
   max-height: 220px;
   overflow-y: auto;
   z-index: 1000;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
 .dark .dropdown { background: #334155; }
@@ -158,7 +157,7 @@ body {
 /* ========================= */
 .weather-card {
   display: grid;
-  grid-template-columns: 1.8fr 1.2fr; /* Laptop par balance layout */
+  grid-template-columns: 1.8fr 1.2fr;
   gap: 24px;
   margin-top: 20px;
   align-items: start;
@@ -173,7 +172,6 @@ body {
 .forecast-section {
   padding: 24px;
   border-radius: 25px;
-  height: 100%;
 }
 
 .dark .forecast-section { background: #334155; }
@@ -242,23 +240,26 @@ body {
 
 .today-forecast h3 {
   margin: 0 0 20px 0;
-  font-size: 16px;
+  font-size: 14px;
   letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.9;
 }
 
 .today-scroll {
   display: flex;
   gap: 15px;
   overflow-x: auto;
-  padding-bottom: 10px;
+  padding-bottom: 12px;
+  -webkit-overflow-scrolling: touch; /* Smooth iOS scrolling */
 }
 
 .today-scroll::-webkit-scrollbar { height: 6px; }
 .today-scroll::-webkit-scrollbar-thumb { background: #38bdf8; border-radius: 20px; }
 
 .hour-card {
-  min-width: 100px;
-  padding: 15px;
+  min-width: 105px;
+  padding: 16px;
   border-radius: 18px;
   text-align: center;
   flex-shrink: 0;
@@ -267,9 +268,9 @@ body {
 .dark .hour-card { background: #1e293b; }
 .light .hour-card { background: white; }
 
-.hour-card p { margin: 0 0 8px 0; font-size: 14px; opacity: 0.8; }
-.hour-card img { width: 50px; height: 50px; margin: 0 auto 8px; object-fit: contain; }
-.hour-card h4 { margin: 0; font-size: 18px; }
+.hour-card p { margin: 0 0 8px 0; font-size: 14px; opacity: 0.7; }
+.hour-card img { width: 48px; height: 48px; margin: 0 auto 8px; object-fit: contain; }
+.hour-card h4 { margin: 0; font-size: 18px; font-weight: bold; }
 
 /* ========================= */
 /* AIR CONDITIONS */
@@ -289,7 +290,7 @@ body {
   margin-bottom: 20px;
 }
 
-.air-header h3 { margin: 0; font-size: 16px; letter-spacing: 1px; }
+.air-header h3 { margin: 0; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.9; }
 
 .see-more-btn {
   padding: 10px 18px;
@@ -322,7 +323,7 @@ body {
 .light .detail-box { background: white; }
 
 .detail-box span { font-size: 28px; }
-.detail-box h4 { margin: 0 0 4px 0; font-size: 14px; opacity: 0.6; }
+.detail-box h4 { margin: 0 0 4px 0; font-size: 14px; opacity: 0.6; font-weight: normal; }
 .detail-box p { margin: 0; font-size: 22px; font-weight: bold; }
 
 /* ========================= */
@@ -330,8 +331,10 @@ body {
 /* ========================= */
 .forecast-section h3 {
   margin: 0 0 20px 0;
-  font-size: 16px;
+  font-size: 14px;
   letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.9;
 }
 
 .forecast-container {
@@ -351,11 +354,11 @@ body {
 .dark .forecast-card { background: #1e293b; }
 .light .forecast-card { background: white; }
 
-.forecast-date { margin: 0; font-size: 16px; font-weight: 500; min-width: 50px; }
-.forecast-middle { display: flex; align-items: center; gap: 12px; flex: 1; margin-left: 20px; }
-.forecast-middle img { width: 40px; height: 40px; object-fit: contain; }
-.forecast-middle span { font-size: 15px; opacity: 0.9; }
-.forecast-card h4 { margin: 0; font-size: 16px; font-weight: 600; text-align: right; }
+.forecast-date { margin: 0; font-size: 16px; font-weight: bold; min-width: 60px; }
+.forecast-middle { display: flex; align-items: center; gap: 12px; flex: 1; margin-left: 15px; }
+.forecast-middle img { width: 36px; height: 36px; object-fit: contain; }
+.forecast-middle span { font-size: 15px; opacity: 0.8; }
+.forecast-card h4 { margin: 0; font-size: 16px; font-weight: bold; text-align: right; white-space: nowrap; }
 
 /* ========================= */
 /* HISTORY */
@@ -370,13 +373,13 @@ body {
 .light .history-box { background: #e2e8f0; }
 
 .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.history-header h3 { margin: 0; font-size: 16px; }
+.history-header h3 { margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
 
 .history-scroll {
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  padding-bottom: 10px;
+  padding-bottom: 12px;
 }
 
 .history-scroll::-webkit-scrollbar { height: 6px; }
@@ -422,57 +425,84 @@ body {
 .error { text-align: center; font-size: 16px; font-weight: bold; color: #ef4444; margin-top: 15px; }
 
 /* ========================= */
-/* BREAKPOINT: TABLET (1024px and below) */
+/* BREAKPOINT: TABLET / SMALL LAPTOPS (1024px and below) */
 /* ========================= */
 @media (max-width: 1024px) {
+  .container {
+    padding: 16px;
+  }
+  
   .weather-card {
-    grid-template-columns: 1fr; /* Grid layout ko single column kiya */
+    grid-template-columns: 1fr; /* Single column flow */
     gap: 20px;
+  }
+
+  .forecast-section {
+    height: auto;
   }
 }
 
 /* ========================= */
-/* BREAKPOINT: MOBILE (768px and below) */
+/* BREAKPOINT: MOBILE (768px and below) - PURE OPTIMIZATION */
 /* ========================= */
 @media (max-width: 768px) {
   .container {
-    padding: 12px;
+    padding: 10px;
   }
 
   .weather-box {
-    padding: 16px;
-    border-radius: 20px;
+    padding: 18px;
+    border-radius: 24px;
   }
 
+  /* Search row stays organized */
   .search-box {
-    flex-direction: row; /* Mobile me row hi rakha taaki button side me achha dikhe */
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .search-box input {
+    padding: 15px;
+    font-size: 15px;
   }
 
   .search-box button {
-    width: 100px; /* Thoda compress kiya */
+    width: 110px;
+    font-size: 15px;
   }
 
+  /* Weather Top Flex-Layout Alignment */
   .weather-top {
-    padding: 20px;
-    text-align: left; /* Center se left karke professional clean look diya */
+    padding: 22px;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Consistent clean alignment */
+    text-align: left;
   }
 
   .weather-icon {
-    width: 90px;
-    height: 90px;
+    width: 100px;
+    height: 100px;
     position: absolute;
-    right: 20px;
+    right: 22px;
     top: 50%;
-    transform: translateY(-50%); /* Icon text ke right side properly align hoga */
+    transform: translateY(-50%); /* Dynamic vertical centering on right side */
   }
 
-  .city-name { font-size: 32px; }
-  .temperature { font-size: 56px; }
+  .city-name { font-size: 34px; }
+  .temperature { font-size: 60px; margin-top: 5px; }
   .condition { font-size: 18px; }
 
+  /* Sections padding inner box refinement */
+  .today-forecast, .extra-info, .forecast-section, .history-box {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  /* 2-Column Grid details on mobile screens */
   .weather-details {
-    grid-template-columns: repeat(2, 1fr); /* Mobile me details 2 columns me space bachane ke liye */
+    grid-template-columns: repeat(2, 1fr); 
     gap: 12px;
   }
 
@@ -482,33 +512,45 @@ body {
   }
 
   .detail-box span { font-size: 24px; }
+  .detail-box h4 { font-size: 13px; }
   .detail-box p { font-size: 18px; }
 
-  .forecast-middle {
-    margin-left: 10px;
+  /* 7-Day Forecast Row Alignment for Clean Widths */
+  .forecast-card {
+    padding: 14px 16px;
   }
-  
+
+  .forecast-middle {
+    margin-left: 8px;
+  }
+
   .forecast-middle span {
-    display: none; /* Mobile screen par string text (e.g. "Sunny") hide kiya taaki clean dikhe */
+    display: none; /* Layout safe: removes Text description on mid-mobiles */
   }
 }
 
 /* ========================= */
-/* BREAKPOINT: SMALL MOBILE (480px and below) */
+/* BREAKPOINT: CHHOTE PHONES (480px and below) - EDGE-TO-EDGE SAFETY */
 /* ========================= */
 @media (max-width: 480px) {
+  .weather-box {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
   .search-box {
-    flex-direction: column; /* Bilkul chhote phones me button niche chala jayega */
+    flex-direction: column; /* Vertical stack strictly for narrow phones */
     gap: 10px;
   }
 
   .search-box button {
     width: 100%;
-    height: 50px;
+    height: 52px;
   }
 
+  /* Top Weather Block re-structure */
   .weather-top {
-    flex-direction: column-reverse; /* UI layout fix: icon upar text niche collapse */
+    flex-direction: column-reverse; /* Icon reaches top first gracefully */
     align-items: center;
     text-align: center;
     padding: 24px 15px;
@@ -517,18 +559,40 @@ body {
   .weather-icon {
     position: static;
     transform: none;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     width: 110px;
     height: 110px;
   }
 
+  /* Details switch to single vertical layout row */
   .weather-details {
-    grid-template-columns: 1fr; /* Single column layout details ke liye */
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .detail-box {
+    padding: 15px;
   }
 
   .air-header {
-    flex-direction: row; /* Text aur button ek line me secure rahenge */
+    flex-direction: row; 
     justify-content: space-between;
+    align-items: center;
     width: 100%;
+  }
+
+  /* Forecast cards labels spacing adjustments */
+  .forecast-date {
+    font-size: 15px;
+    min-width: 45px;
+  }
+
+  .forecast-card h4 {
+    font-size: 15px;
+  }
+  
+  .hour-card {
+    min-width: 95px;
+    padding: 12px;
   }
 }
