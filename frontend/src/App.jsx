@@ -136,35 +136,23 @@ const getCurrentLocationWeather = () => {
 
         const locationData = await locationRes.json();
 
-        const area =
-          locationData.address.suburb ||
-          locationData.address.neighbourhood ||
-          locationData.address.village ||
-          locationData.address.town ||
-          "";
+const exactLocation =
+  locationData.display_name || "Unknown Location";
 
-        const city =
-          locationData.address.city ||
-          locationData.address.state ||
-          "";
+if (weatherData?.error) {
+  getIPLocationWeather();
+} else {
 
-        if (weatherData?.error) {
-          getIPLocationWeather();
-        } else {
+  weatherData.location.name = exactLocation;
 
-          weatherData.location.name =
-            area && city
-              ? `${area}, ${city}`
-              : city;
+  setWeather(weatherData);
 
-          setWeather(weatherData);
+  setCity(exactLocation);
 
-          setCity(weatherData.location.name);
+  setError("");
 
-          setError("");
-
-          getHistory();
-        }
+  getHistory();
+}
       } catch (err) {
         console.log(err);
         getIPLocationWeather();
