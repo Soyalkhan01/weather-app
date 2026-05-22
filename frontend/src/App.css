@@ -83,6 +83,9 @@ font-weight:bold;
 background:#38bdf8;
 color:white;
 transition:0.3s;
+margin-bottom: 5px;
+position: relative;
+bottom: 10px;
 }
 
 .theme-btn:hover{
@@ -276,16 +279,10 @@ gap:14px;
 overflow-x:auto;
 overflow-y:hidden;
 padding-bottom:10px;
-scrollbar-width:thin;
 }
 
 .today-scroll::-webkit-scrollbar{
 height:6px;
-}
-
-.today-scroll::-webkit-scrollbar-thumb{
-background:#38bdf8;
-border-radius:20px;
 }
 
 .hour-card{
@@ -548,18 +545,15 @@ gap:12px;
 overflow-x:auto;
 overflow-y:hidden;
 padding-bottom:10px;
-scrollbar-width:thin;
 }
 
 .history-scroll::-webkit-scrollbar{
 height:6px;
 }
-
-.history-scroll::-webkit-scrollbar-thumb{
-background:#38bdf8;
-border-radius:20px;
+.right-panel{
+  position: relative;
+  top: 20px;
 }
-
 .history-item{
 min-width:140px;
 padding:12px 16px;
