@@ -108,42 +108,75 @@ const App = () => {
   };
 
 
-  const getCurrentLocationWeather = () => {
-    if (!navigator.geolocation) {
-      getIPLocationWeather();
-      return;
-    }
+const getCurrentLocationWeather = () => {
+  if (!navigator.geolocation) {
+    getIPLocationWeather();
+    return;
+  }
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
 
-        try {
-          setLoading(true);
-          const res = await fetch(`${BACKEND_URL}/weather/${lat},${lon}`);
-          const data = await res.json();
+      try {
+        setLoading(true);
 
-          if (data?.error) {
-            getIPLocationWeather();
-          } else {
-            setWeather(data);
-            setCity(data.location?.name || "");
-            setError("");
-            getHistory();
-          }
-        } catch (err) {
+        // Weather API
+        const weatherRes = await fetch(
+          `${BACKEND_URL}/weather/${lat},${lon}`
+        );
+
+        const weatherData = await weatherRes.json();
+
+        // Exact Area / Colony Name
+        const locationRes = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+        );
+
+        const locationData = await locationRes.json();
+
+        const area =
+          locationData.address.suburb ||
+          locationData.address.neighbourhood ||
+          locationData.address.village ||
+          locationData.address.town ||
+          "";
+
+        const city =
+          locationData.address.city ||
+          locationData.address.state ||
+          "";
+
+        if (weatherData?.error) {
           getIPLocationWeather();
-        } finally {
-          setLoading(false);
-        }
-      },
-      () => {
-        getIPLocationWeather();
-      }
-    );
-  };
+        } else {
 
+          weatherData.location.name =
+            area && city
+              ? `${area}, ${city}`
+              : city;
+
+          setWeather(weatherData);
+
+          setCity(weatherData.location.name);
+
+          setError("");
+
+          getHistory();
+        }
+      } catch (err) {
+        console.log(err);
+        getIPLocationWeather();
+      } finally {
+        setLoading(false);
+      }
+    },
+    () => {
+      getIPLocationWeather();
+    }
+  );
+};
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
