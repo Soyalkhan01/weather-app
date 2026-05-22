@@ -13,49 +13,26 @@ const WeatherCard = ({ weather }) => {
   const getAqiDetails = (index) => {
     switch(index) {
       case 1: 
-        return { text: "Good", status: "🟢 Safe", desc: "(0-50) Air is fresh" };
+        return { text: "Good", status: "🟢 Safe", desc: "Air is fresh", percentage: "15%", color: "#22c55e" };
       case 2: 
-        return { text: "Moderate", status: "🟡 Acceptable", desc: "(51-100) Safe for most" };
+        return { text: "Moderate", status: "🟡 Acceptable", desc: "Safe for most", percentage: "35%", color: "#eab308" };
       case 3: 
-        return { text: "Unhealthy for Sensitive Groups", status: "🟠 Caution", desc: "(101-150) Wear mask if sensitive" };
+        return { text: "Unhealthy for Sensitive Groups", status: "🟠 Caution", desc: "Wear mask if sensitive", percentage: "55%", color: "#f97316" };
       case 4: 
-        return { text: "Unhealthy", status: "🔴 Danger", desc: "(151-200) Harmful air quality" };
+        return { text: "Unhealthy", status: "🔴 Danger", desc: "Harmful air quality", percentage: "72%", color: "#ef4444" };
       case 5: 
-        return { text: "Very Unhealthy", status: "💀 High Danger", desc: "(201-300) Avoid going outdoor" };
+        return { text: "Very Unhealthy", status: "💀 High Danger", desc: "Avoid going outdoors", percentage: "88%", color: "#a855f7" };
       case 6: 
-        return { text: "Hazardous", status: "⚠️ Emergency", desc: "(301+) Severe health risk" };
+        return { text: "Hazardous", status: "⚠️ Emergency", desc: "Severe health risk", percentage: "100%", color: "#7f1d1d" };
       default: 
-        return { text: "N/A", status: "", desc: "" };
+        return { text: "N/A", status: "", desc: "", percentage: "0%", color: "#ccc" };
     }
   };
 
   const aqiIndex = weather.current.air_quality?.["us-epa-index"];
   const aqiInfo = getAqiDetails(aqiIndex);
 
-  const rawForecast = weather.forecast?.forecastday || [];
-  const fullSevenDaysForecast = [...rawForecast];
-
-  if (fullSevenDaysForecast.length > 0 && fullSevenDaysForecast.length < 7) {
-    const lastAvailableDay = fullSevenDaysForecast[fullSevenDaysForecast.length - 1];
-    const shortDaysCount = 7 - fullSevenDaysForecast.length;
-
-    for (let i = 1; i <= shortDaysCount; i++) {
-      const nextDate = new Date(lastAvailableDay.date);
-      nextDate.setDate(nextDate.getDate() + i);
-
-      fullSevenDaysForecast.push({
-        date: nextDate.toISOString().split("T")[0],
-        day: {
-          maxtemp_c: Math.round(lastAvailableDay.day.maxtemp_c + (Math.random() * 2 - 1)),
-          mintemp_c: Math.round(lastAvailableDay.day.mintemp_c + (Math.random() * 2 - 1)),
-          condition: {
-            text: lastAvailableDay.day.condition.text,
-            icon: lastAvailableDay.day.condition.icon,
-          },
-        },
-      });
-    }
-  }
+  const fullSevenDaysForecast = weather.forecast?.forecastday || [];
 
   return (
     <div className="weather-card">
@@ -97,10 +74,7 @@ const WeatherCard = ({ weather }) => {
       <div className="extra-info">
         <div className="air-header">
           <h3>AIR CONDITIONS</h3>
-          <button 
-            className="see-more-btn" 
-            onClick={() => setShowMore(!showMore)}
-          >
+          <button className="see-more-btn" onClick={() => setShowMore(!showMore)}>
             {showMore ? "See less" : "See more"}
           </button>
         </div>
@@ -138,17 +112,42 @@ const WeatherCard = ({ weather }) => {
             </div>
           </div>
 
-          <div className="detail-box">
+          <div className="detail-box" style={{ gridColumn: "span 1" }}>
             <span>🍃</span>
-            <div>
+            <div style={{ width: "100%" }}>
               <h4>Air Quality (AQI)</h4>
               {aqiIndex ? (
-                <>
-                  <p style={{ fontSize: "20px" }}>{aqiInfo.text}</p>
-                  <div style={{ fontSize: "13px", marginTop: "4px", opacity: 0.9 }}>
+                <div style={{ width: "100%" }}>
+                  <p style={{ fontSize: "18px", margin: "0" }}>{aqiInfo.text}</p>
+                  
+                  <div style={{ 
+                    width: "100%", 
+                    height: "6px", 
+                    background: "rgba(255,255,255,0.2)", 
+                    borderRadius: "4px", 
+                    marginTop: "8px",
+                    position: "relative",
+                    overflow: "hidden"
+                  }}>
+                    <div style={{ 
+                      width: aqiInfo.percentage, 
+                      height: "100%", 
+                      background: aqiInfo.color, 
+                      borderRadius: "4px",
+                      transition: "width 0.5s ease-in-out"
+                    }}></div>
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", opacity: 0.5, marginTop: "2px" }}>
+                    <span>Safe</span>
+                    <span>Mod</span>
+                    <span>Danger</span>
+                  </div>
+
+                  <div style={{ fontSize: "12px", marginTop: "4px", opacity: 0.9 }}>
                     <span style={{ fontWeight: "bold" }}>{aqiInfo.status}</span> — {aqiInfo.desc}
                   </div>
-                </>
+                </div>
               ) : (
                 <p>N/A</p>
               )}
@@ -159,7 +158,7 @@ const WeatherCard = ({ weather }) => {
             <span>🌅</span>
             <div>
               <h4>Sunrise / Sunset</h4>
-              <p style={{ fontSize: "16px", marginTop: "4px" }}>
+              <p style={{ fontSize: "15px", marginTop: "4px" }}>
                 {currentDayAstro?.sunrise || "N/A"} / {currentDayAstro?.sunset || "N/A"}
               </p>
             </div>
