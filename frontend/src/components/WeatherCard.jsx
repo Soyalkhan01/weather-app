@@ -13,15 +13,15 @@ const WeatherCard = ({ weather }) => {
   const getAqiDetails = (index) => {
     switch(index) {
       case 1: 
-        return { text: "Good", status: "🟢 Safe", desc: "Air is fresh", percentage: "15%", color: "#22c55e" };
+        return { text: "Good", status: "🟢 Safe", desc: "Air is fresh", percentage: "16%", color: "#22c55e" };
       case 2: 
-        return { text: "Moderate", status: "🟡 Acceptable", desc: "Safe for most", percentage: "35%", color: "#eab308" };
+        return { text: "Moderate", status: "🟡 Acceptable", desc: "Safe for most", percentage: "33%", color: "#eab308" };
       case 3: 
-        return { text: "Unhealthy for Sensitive Groups", status: "🟠 Caution", desc: "Wear mask if sensitive", percentage: "55%", color: "#f97316" };
+        return { text: "Unhealthy for Sensitive Groups", status: "🟠 Caution", desc: "Wear mask if sensitive", percentage: "50%", color: "#f97316" };
       case 4: 
-        return { text: "Unhealthy", status: "🔴 Danger", desc: "Harmful air quality", percentage: "72%", color: "#ef4444" };
+        return { text: "Unhealthy", status: "🔴 Danger", desc: "Harmful air quality", percentage: "66%", color: "#ef4444" };
       case 5: 
-        return { text: "Very Unhealthy", status: "💀 High Danger", desc: "Avoid going outdoors", percentage: "88%", color: "#a855f7" };
+        return { text: "Very Unhealthy", status: "💀 High Danger", desc: "Avoid going outdoors", percentage: "83%", color: "#a855f7" };
       case 6: 
         return { text: "Hazardous", status: "⚠️ Emergency", desc: "Severe health risk", percentage: "100%", color: "#7f1d1d" };
       default: 
@@ -112,40 +112,32 @@ const WeatherCard = ({ weather }) => {
             </div>
           </div>
 
-          <div className="detail-box" style={{ gridColumn: "span 1" }}>
+          <div className="detail-box aqi-box">
             <span>🍃</span>
-            <div style={{ width: "100%" }}>
+            <div className="aqi-content">
               <h4>Air Quality (AQI)</h4>
               {aqiIndex ? (
-                <div style={{ width: "100%" }}>
-                  <p style={{ fontSize: "18px", margin: "0" }}>{aqiInfo.text}</p>
+                <div className="aqi-wrapper">
+                  <p className="aqi-level-text">Level {aqiIndex} ({aqiInfo.text})</p>
                   
-                  <div style={{ 
-                    width: "100%", 
-                    height: "6px", 
-                    background: "rgba(255,255,255,0.2)", 
-                    borderRadius: "4px", 
-                    marginTop: "8px",
-                    position: "relative",
-                    overflow: "hidden"
-                  }}>
-                    <div style={{ 
-                      width: aqiInfo.percentage, 
-                      height: "100%", 
-                      background: aqiInfo.color, 
-                      borderRadius: "4px",
-                      transition: "width 0.5s ease-in-out"
-                    }}></div>
+                  <div className="aqi-bar-bg">
+                    <div 
+                      className="aqi-bar-fill"
+                      style={{ 
+                        "--aqi-width": aqiInfo.percentage, 
+                        "--aqi-color": aqiInfo.color 
+                      }}
+                    ></div>
                   </div>
 
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", opacity: 0.5, marginTop: "2px" }}>
-                    <span>Safe</span>
-                    <span>Mod</span>
-                    <span>Danger</span>
+                  <div className="aqi-labels">
+                    <span>1 (Good)</span>
+                    <span>3</span>
+                    <span>6 (Max)</span>
                   </div>
 
-                  <div style={{ fontSize: "12px", marginTop: "4px", opacity: 0.9 }}>
-                    <span style={{ fontWeight: "bold" }}>{aqiInfo.status}</span> — {aqiInfo.desc}
+                  <div className="aqi-status-desc">
+                    <span className="aqi-bold">{aqiInfo.status}</span> — {aqiInfo.desc}
                   </div>
                 </div>
               ) : (
@@ -154,13 +146,12 @@ const WeatherCard = ({ weather }) => {
             </div>
           </div>
 
-          <div className="detail-box">
+          <div className="detail-box sunrise-sunset-box">
             <span>🌅</span>
-            <div>
+            <div className="astro-content">
               <h4>Sunrise / Sunset</h4>
-              <p style={{ fontSize: "15px", marginTop: "4px" }}>
-                {currentDayAstro?.sunrise || "N/A"} / {currentDayAstro?.sunset || "N/A"}
-              </p>
+              <p className="astro-time">🌅 Rise: {currentDayAstro?.sunrise || "N/A"}</p>
+              <p className="astro-time">🌇 Set: {currentDayAstro?.sunset || "N/A"}</p>
             </div>
           </div>
 
@@ -173,7 +164,6 @@ const WeatherCard = ({ weather }) => {
                   <p>{weather.current.vis_km} km</p>
                 </div>
               </div>
-
               <div className="detail-box">
                 <span>🎈</span>
                 <div>
