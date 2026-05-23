@@ -611,13 +611,9 @@ color:#ef4444;
 font-weight:bold;
 }
 
-/* ==========================================================================
-   MASTER RESPONSIVE VOICE BUTTON CSS (CLEANED & OPTIMIZED)
-   ========================================================================== */
-
 .voice-btn {
   position: absolute;
-  right: 15px; /* Fixed anchor point inside the right of search bar container */
+  right: -25px;
   background: transparent !important;
   border: none !important;
   font-size: 20px !important;
@@ -655,9 +651,6 @@ font-weight:bold;
   }
 }
 
-/* ==========================================================================
-   RESPONSIVE MEDIA QUERIES
-   ========================================================================== */
 
 @media(max-width:1200px){
   .weather-card{
@@ -861,8 +854,8 @@ font-weight:bold;
   
   /* Voice adjustments for tab/mobile structures */
   .voice-btn {
-    right: 12px;
-    font-size: 18px !important;
+    right: -150px;
+    font-size: 20px !important;
     width: 32px !important;
     height: 32px !important;
   }
