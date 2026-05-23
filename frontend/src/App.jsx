@@ -31,7 +31,7 @@ const App = () => {
     }
   };
 
-  // Text se Coordinates nikalne ka master function (Google Maps Architecture)
+  // Text query se coordinates aur exact local area name nikalne ka handler
   const getCoordsByTextSearch = async (searchText) => {
     if (!searchText?.trim()) return;
     setLoading(true);
@@ -44,19 +44,24 @@ const App = () => {
       const geoData = await geoRes.json();
 
       if (geoData && geoData.length > 0) {
-        const { lat, lon, display_name, address } = geoData[0];
+        const { lat, lon, address } = geoData[0];
         
-        // Exact Colony ya Mohalle ka naam nikalne ka fallback system
+        // Sabse micro level name se lekar broad level name tak ka strict check
         const exactSpot = 
           address.neighbourhood || 
-          address.suburb || 
           address.colony || 
+          address.residential || 
+          address.suburb || 
           address.village || 
-          display_name.split(",")[0];
+          address.hamlet || 
+          address.town || 
+          address.road || 
+          searchText;
 
-        // Sikar, Rajasthan jaisa parent area short karne ke liye
-        const parentArea = address.city || address.town || address.county || "";
-        const finalDisplayName = parentArea ? `${exactSpot}, ${parentArea}` : exactSpot;
+        const parentArea = address.city || address.county || address.state || "";
+        const finalDisplayName = (parentArea && parentArea.toLowerCase() !== exactSpot.toLowerCase()) 
+          ? `${exactSpot}, ${parentArea}` 
+          : exactSpot;
         
         await getWeatherByCoords(lat, lon, finalDisplayName);
       } else {
@@ -69,7 +74,6 @@ const App = () => {
     }
   };
 
-  // Backup Text Weather
   const getWeatherByText = async (selectedCity) => {
     try {
       const res = await fetch(
@@ -90,7 +94,6 @@ const App = () => {
     }
   };
 
-  // Exact Coordinates Weather Loader
   const getWeatherByCoords = async (lat, lon, preciseName) => {
     setLoading(true);
     setError("");
@@ -104,10 +107,10 @@ const App = () => {
       if (weatherData?.error) {
         getIPLocationWeather();
       } else {
-        // CRITICAL FORCE OVERWRITE: Pure weather object mein har jagah exact colony force kar rahe hain
+        // Force Overwrite screen display text with precise colony name
         weatherData.location.name = preciseName;
         if (weatherData.location.country === "India") {
-          weatherData.location.country = "Rajasthan, India"; 
+          weatherData.location.country = "India"; 
         }
 
         setWeather(weatherData);
@@ -121,7 +124,6 @@ const App = () => {
     }
   };
 
-  // Dropdown Suggestions (India Only Focused)
   const searchCities = async (value) => {
     setCity(value);
     if (!value.trim() || value.length < 3) {
@@ -137,8 +139,15 @@ const App = () => {
       
       if (Array.isArray(data)) {
         const formattedSuggestions = data.map(item => {
-          const spot = item.address.neighbourhood || item.address.suburb || item.address.colony || item.address.village || item.display_name.split(",")[0];
-          const parent = item.address.city || item.address.town || item.address.state || "";
+          const spot = 
+            item.address.neighbourhood || 
+            item.address.colony || 
+            item.address.residential || 
+            item.address.suburb || 
+            item.address.village || 
+            item.display_name.split(",")[0];
+            
+          const parent = item.address.city || item.address.town || item.address.county || "";
           return {
             name: parent ? `${spot}, ${parent}` : spot,
             lat: item.lat,
@@ -198,7 +207,7 @@ const App = () => {
     }
   };
 
-  // Auto GPS Tracking on App Start
+  // Device GPS Tracker (Auto run on Mount)
   const getCurrentLocationWeather = () => {
     if (!navigator.geolocation) {
       getIPLocationWeather();
@@ -219,17 +228,22 @@ const App = () => {
           const locationData = await locationRes.json();
           
           const addr = locationData.address;
+          
+          // Google maps alignment hierarchy structure parsing
           const exactSpot = 
             addr.neighbourhood ||    
-            addr.suburb ||           
             addr.colony ||           
+            addr.residential ||      
+            addr.suburb ||           
             addr.village ||          
             addr.town ||             
             addr.road ||             
             "Current Spot";
 
-          const parentCity = addr.city || addr.county || "";
-          const combinedLocation = parentCity ? `${exactSpot}, ${parentCity}` : exactSpot;
+          const parentCity = addr.city || addr.town || addr.county || "";
+          const combinedLocation = (parentCity && parentCity.toLowerCase() !== exactSpot.toLowerCase()) 
+            ? `${exactSpot}, ${parentCity}` 
+            : exactSpot;
 
           setCurrentCoords({ lat, lon, name: combinedLocation });
           await getWeatherByCoords(lat, lon, combinedLocation);
