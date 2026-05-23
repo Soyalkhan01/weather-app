@@ -14,7 +14,6 @@ const App = () => {
 
   const BACKEND_URL = "https://weather-backend-n5fs.onrender.com";
 
-  // Automatic Background Refresh Block
   useEffect(() => {
     const interval = setInterval(() => {
       if (city) {
@@ -25,14 +24,15 @@ const App = () => {
   }, [city, currentCoords]);
 
   const handleSearchRoute = () => {
-    if (currentCoords && city === currentCoords.name) {
+    // Agar input text humari live colony ke naam se match karta hai, toh coordinate API hi hit hogi
+    if (currentCoords && city.trim().toLowerCase() === currentCoords.name.toLowerCase()) {
       getWeatherByCoords(currentCoords.lat, currentCoords.lon, currentCoords.name);
     } else {
       getWeatherByText(city);
     }
   };
 
-  // 1. Text Search (Jab koi typing karke dhoonde)
+  // 1. Text Search Handler
   const getWeatherByText = async (selectedCity) => {
     if (!selectedCity?.trim()) return;
 
@@ -60,7 +60,7 @@ const App = () => {
     }
   };
 
-  // 2. Exact Coordinates Weather (Bina search kiye auto-load aur Google Maps accuracy ke liye)
+  // 2. Precise Coordinates Handler
   const getWeatherByCoords = async (lat, lon, fallbackName) => {
     setLoading(true);
     setError("");
@@ -74,7 +74,6 @@ const App = () => {
       if (weatherData?.error) {
         getIPLocationWeather();
       } else {
-        // API response ke andar location name ko hamare exact colony/village name se overwrite karenge
         weatherData.location.name = fallbackName;
         setWeather(weatherData);
         setCity(fallbackName);
@@ -146,7 +145,9 @@ const App = () => {
       getWeatherByText("Delhi");
     }
   };
-const getCurrentLocationWeather = () => {
+
+  // Automated Real-Time Tracking Load System
+  const getCurrentLocationWeather = () => {
     if (!navigator.geolocation) {
       getIPLocationWeather();
       return;
@@ -160,11 +161,6 @@ const getCurrentLocationWeather = () => {
         try {
           setLoading(true);
 
-          const weatherRes = await fetch(
-            `${BACKEND_URL}/current-location/${lat}/${lon}`
-          );
-          const weatherData = await weatherRes.json();
-
           const locationRes = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
           );
@@ -172,29 +168,23 @@ const getCurrentLocationWeather = () => {
           
           const addr = locationData.address;
           
-          // Google Maps ki tarah priority order: Sabse choti local jagah se lekar city tak
+          // Suburb, Colony ya Village nikalne ka precise standard code
           const exactLocation = 
-            addr.neighbourhood ||    // Sabse pehle local mohalla/pados
-            addr.suburb ||           // Colony / Area name
-            addr.colony ||           // Agar specific colony field hai
-            addr.village ||          // Gaon ka naam
-            addr.town ||             // Town ka naam
-            addr.road ||             // Agar kuch na mile toh jis road par ho us ka naam
-            addr.commercial ||       // Koi shopping complex ya market area
-            addr.industrial ||       // Industrial area
-            addr.city_district ||    // City ka district
-            weatherData.location?.name || 
-            "My Location";
+            addr.neighbourhood ||    
+            addr.suburb ||           
+            addr.colony ||           
+            addr.village ||          
+            addr.town ||             
+            addr.road ||             
+            addr.city_district ||    
+            "Current Location";
 
-          if (weatherData?.error) {
-            getIPLocationWeather();
-          } else {
-            // Ab yahan screen par "India" ya "Current Location" ke bajay aapki exact colony/village ka naam aayega
-            weatherData.location.name = exactLocation;
-            setWeather(weatherData);
-            setCity(exactLocation);
-            setError("");
-          }
+          // CRITICAL FIX: Coordinates aur exact local name ko state tracker me save kiya
+          setCurrentCoords({ lat, lon, name: exactLocation });
+
+          // Direct location fetch call coordinates ke saath 
+          await getWeatherByCoords(lat, lon, exactLocation);
+
         } catch (err) {
           console.log(err);
           getIPLocationWeather();
