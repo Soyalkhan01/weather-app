@@ -146,9 +146,7 @@ const App = () => {
       getWeatherByText("Delhi");
     }
   };
-
-  // 100% Automated Initial Load System
-  const getCurrentLocationWeather = () => {
+const getCurrentLocationWeather = () => {
     if (!navigator.geolocation) {
       getIPLocationWeather();
       return;
@@ -162,27 +160,41 @@ const App = () => {
         try {
           setLoading(true);
 
-          // Suburb, colony, neighbourhood ya village ka accurate naam nikalne ke liye
+          const weatherRes = await fetch(
+            `${BACKEND_URL}/current-location/${lat}/${lon}`
+          );
+          const weatherData = await weatherRes.json();
+
           const locationRes = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
           );
           const locationData = await locationRes.json();
           
           const addr = locationData.address;
+          
+          // Google Maps ki tarah priority order: Sabse choti local jagah se lekar city tak
           const exactLocation = 
-            addr.suburb || 
-            addr.neighbourhood || 
-            addr.village || 
-            addr.colony || 
-            addr.city_district || 
-            "Current Location";
+            addr.neighbourhood ||    // Sabse pehle local mohalla/pados
+            addr.suburb ||           // Colony / Area name
+            addr.colony ||           // Agar specific colony field hai
+            addr.village ||          // Gaon ka naam
+            addr.town ||             // Town ka naam
+            addr.road ||             // Agar kuch na mile toh jis road par ho us ka naam
+            addr.commercial ||       // Koi shopping complex ya market area
+            addr.industrial ||       // Industrial area
+            addr.city_district ||    // City ka district
+            weatherData.location?.name || 
+            "My Location";
 
-          // State memory block updates
-          setCurrentCoords({ lat, lon, name: exactLocation });
-
-          // Bina kisi click ke, direct coordinate API trigger kar rahe hain
-          await getWeatherByCoords(lat, lon, exactLocation);
-
+          if (weatherData?.error) {
+            getIPLocationWeather();
+          } else {
+            // Ab yahan screen par "India" ya "Current Location" ke bajay aapki exact colony/village ka naam aayega
+            weatherData.location.name = exactLocation;
+            setWeather(weatherData);
+            setCity(exactLocation);
+            setError("");
+          }
         } catch (err) {
           console.log(err);
           getIPLocationWeather();
