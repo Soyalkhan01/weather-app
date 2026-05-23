@@ -24,58 +24,21 @@ const App = () => {
   }, [city, currentCoords]);
 
   const handleSearchRoute = () => {
+    // Agar input text humari live colony ke naam se match karta hai, toh coordinate API hi hit hogi
     if (currentCoords && city.trim().toLowerCase() === currentCoords.name.toLowerCase()) {
       getWeatherByCoords(currentCoords.lat, currentCoords.lon, currentCoords.name);
     } else {
-      getCoordsByTextSearch(city);
+      getWeatherByText(city);
     }
   };
 
-  const getCoordsByTextSearch = async (searchText) => {
-    if (!searchText?.trim()) return;
+  // 1. Text Search Handler
+  const getWeatherByText = async (selectedCity) => {
+    if (!selectedCity?.trim()) return;
+
     setLoading(true);
     setError("");
 
-    try {
-      const geoRes = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchText)}&countrycodes=in&limit=1&addressdetails=1`
-      );
-      const geoData = await geoRes.json();
-
-      if (geoData && geoData.length > 0) {
-        const { lat, lon, display_name, address } = geoData[0];
-        
-        // India ke har ek gali mohalle ka micro breakdown parse karne ka system
-        const exactSpot = 
-          address.neighbourhood || 
-          address.colony || 
-          address.residential || 
-          address.suburb || 
-          address.townquarter ||
-          address.village || 
-          address.hamlet || 
-          address.road || 
-          address.commercial ||
-          address.industrial ||
-          display_name.split(",")[0];
-
-        const parentArea = address.city || address.town || address.county || address.state_district || "";
-        const finalDisplayName = (parentArea && parentArea.toLowerCase() !== exactSpot.toLowerCase() && !exactSpot.includes(parentArea)) 
-          ? `${exactSpot}, ${parentArea}` 
-          : exactSpot;
-        
-        await getWeatherByCoords(lat, lon, finalDisplayName);
-      } else {
-        await getWeatherByText(searchText);
-      }
-    } catch (err) {
-      await getWeatherByText(searchText);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getWeatherByText = async (selectedCity) => {
     try {
       const res = await fetch(
         `${BACKEND_URL}/weather/${encodeURIComponent(selectedCity)}`
@@ -83,7 +46,7 @@ const App = () => {
       const data = await res.json();
 
       if (!res.ok || data?.error) {
-        setError("Location not found");
+        setError("City not found");
         setWeather(null);
       } else {
         setWeather(data);
@@ -92,10 +55,13 @@ const App = () => {
       }
     } catch (err) {
       setError("Server error");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getWeatherByCoords = async (lat, lon, preciseName) => {
+  // 2. Precise Coordinates Handler
+  const getWeatherByCoords = async (lat, lon, fallbackName) => {
     setLoading(true);
     setError("");
 
@@ -108,11 +74,10 @@ const App = () => {
       if (weatherData?.error) {
         getIPLocationWeather();
       } else {
-        // Pure weather object structure mein exact display text force map update karenge
-        weatherData.location.name = preciseName;
+        weatherData.location.name = fallbackName;
         setWeather(weatherData);
-        setCity(preciseName);
-        saveToLocalHistory(preciseName);
+        setCity(fallbackName);
+        saveToLocalHistory(fallbackName);
       }
     } catch (err) {
       setError("Server error");
@@ -123,38 +88,15 @@ const App = () => {
 
   const searchCities = async (value) => {
     setCity(value);
-    if (!value.trim() || value.length < 3) {
+    if (!value.trim()) {
       setSuggestions([]);
       return;
     }
 
     try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&countrycodes=in&limit=5&addressdetails=1`
-      );
+      const res = await fetch(`${BACKEND_URL}/search/${value}`);
       const data = await res.json();
-      
-      if (Array.isArray(data)) {
-        const formattedSuggestions = data.map(item => {
-          const spot = 
-            item.address.neighbourhood || 
-            item.address.colony || 
-            item.address.residential || 
-            item.address.suburb || 
-            item.address.village || 
-            item.display_name.split(",")[0];
-            
-          const parent = item.address.city || item.address.town || item.address.county || "";
-          return {
-            name: (parent && parent.toLowerCase() !== spot.toLowerCase()) ? `${spot}, ${parent}` : spot,
-            lat: item.lat,
-            lon: item.lon
-          };
-        });
-        setSuggestions(formattedSuggestions);
-      } else {
-        setSuggestions([]);
-      }
+      setSuggestions(Array.isArray(data) ? data : []);
     } catch (err) {
       console.log(err);
     }
@@ -195,15 +137,16 @@ const App = () => {
       const res = await fetch("https://ipapi.co/json/");
       const data = await res.json();
       if (data?.city) {
-        getCoordsByTextSearch(data.city);
+        getWeatherByText(data.city);
       } else {
-        getCoordsByTextSearch("Sikar");
+        getWeatherByText("Delhi");
       }
     } catch (err) {
-      getCoordsByTextSearch("Sikar");
+      getWeatherByText("Delhi");
     }
   };
 
+  // Automated Real-Time Tracking Load System
   const getCurrentLocationWeather = () => {
     if (!navigator.geolocation) {
       getIPLocationWeather();
@@ -224,30 +167,23 @@ const App = () => {
           const locationData = await locationRes.json();
           
           const addr = locationData.address;
-          const display = locationData.display_name;
-
-          // Split display name to extract the first clean location segments
-          const nameParts = display.split(",");
-          const geoFallback = nameParts.length > 1 ? `${nameParts[0].trim()}, ${nameParts[1].trim()}` : nameParts[0];
           
-          const exactSpot = 
+          // Suburb, Colony ya Village nikalne ka precise standard code
+          const exactLocation = 
             addr.neighbourhood ||    
-            addr.colony ||           
-            addr.residential ||      
             addr.suburb ||           
-            addr.townquarter ||
+            addr.colony ||           
             addr.village ||          
             addr.town ||             
             addr.road ||             
-            geoFallback;
+            addr.city_district ||    
+            "Current Location";
 
-          const parentCity = addr.city || addr.town || addr.county || addr.state_district || "";
-          const combinedLocation = (parentCity && parentCity.toLowerCase() !== exactSpot.toLowerCase() && !exactSpot.includes(parentCity)) 
-            ? `${exactSpot}, ${parentCity}` 
-            : exactSpot;
+          // CRITICAL FIX: Coordinates aur exact local name ko state tracker me save kiya
+          setCurrentCoords({ lat, lon, name: exactLocation });
 
-          setCurrentCoords({ lat, lon, name: combinedLocation });
-          await getWeatherByCoords(lat, lon, combinedLocation);
+          // Direct location fetch call coordinates ke saath 
+          await getWeatherByCoords(lat, lon, exactLocation);
 
         } catch (err) {
           console.log(err);
@@ -282,7 +218,7 @@ const App = () => {
             <div className="search-container">
               <input
                 type="text"
-                placeholder="Search colony, village or city in India..."
+                placeholder="Search city..."
                 value={city}
                 onChange={(e) => searchCities(e.target.value)}
                 onKeyDown={handleKeyPress}
@@ -296,11 +232,11 @@ const App = () => {
                       className="dropdown-item"
                       onClick={() => {
                         setCity(item.name);
-                        getWeatherByCoords(item.lat, item.lon, item.name);
+                        getWeatherByText(item.name);
                         setSuggestions([]);
                       }}
                     >
-                      🌍 {item.name}
+                      🌍 {item.name}, {item.country}
                     </div>
                   ))}
                 </div>
@@ -322,7 +258,7 @@ const App = () => {
           </button>
         </div>
 
-        {loading && <p className="loading">Fetching Weather...</p>}
+        {loading && <p className="loading">Loading weather...</p>}
 
         {error && <p className="error">{error}</p>}
 
@@ -339,7 +275,7 @@ const App = () => {
                     <div
                       key={index}
                       className="history-item"
-                      onClick={() => getCoordsByTextSearch(item.city)}
+                      onClick={() => getWeatherByText(item.city)}
                     >
                       <span>🌍 {item.city}</span>
                       
