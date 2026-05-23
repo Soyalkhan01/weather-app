@@ -11,7 +11,7 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [currentCoords, setCurrentCoords] = useState(null);
-  const [isListening, setIsListening] = useState(false); // Voice processing state
+  const [isListening, setIsListening] = useState(false);
 
   const BACKEND_URL = "https://weather-backend-n5fs.onrender.com";
 
@@ -32,7 +32,40 @@ const App = () => {
     }
   };
 
-  // Automated Voice Search Trigger System
+  // WhatsApp-Style Beep Sound Generator
+  const playSound = (type) => {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      if (type === "start") {
+        // High pitch clean ping sound (WhatsApp start style)
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.15);
+      } else if (type === "stop") {
+        // Low soft bass tone (WhatsApp stop style)
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(350, ctx.currentTime);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.2);
+      }
+    } catch (e) {
+      console.log("Audio feedback error:", e);
+    }
+  };
+
   const startVoiceRecognition = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
@@ -43,17 +76,19 @@ const App = () => {
 
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
-    recognition.lang = "en-IN"; // Hindi aur Indian English dono ke accents catch karne ke liye
+    recognition.lang = "en-IN";
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
+      playSound("start"); // Trigger Start Sound
       setIsListening(true);
       setCity("Listening...");
     };
 
     recognition.onerror = (event) => {
-      console.error("Speech recognition error", event.error);
+      console.error(event.error);
+      playSound("stop"); // Trigger Error Sound
       setIsListening(false);
       setCity("");
       setError("Voice not recognized. Please try again.");
@@ -64,13 +99,12 @@ const App = () => {
     };
 
     recognition.onresult = (event) => {
+      playSound("stop"); // Trigger Success End Sound
       const voiceResult = event.results[0][0].transcript;
-      // Agar last me full stop (.) lga aa jaye toh use hatane ke liye
       const cleanVoiceText = voiceResult.replace(/\.$/g, "").trim();
       
       setCity(cleanVoiceText);
       setSuggestions([]);
-      // Bolne ke baad bina search click kiye automatic weather data trigger hoga
       getCoordsByTextSearch(cleanVoiceText);
     };
 
@@ -329,7 +363,6 @@ const App = () => {
                 onKeyDown={handleKeyPress}
               />
               
-              {/* Voice mic icon embedded inside input box field area structure layout */}
               <button 
                 type="button" 
                 className={`voice-btn ${isListening ? "listening" : ""}`} 
