@@ -40,7 +40,7 @@ const App = () => {
       } else {
         setWeather(data);
         setCity(data.location?.name || selectedCity);
-        getHistory(); 
+        saveToLocalHistory(data.location?.name || selectedCity);
       }
     } catch (err) {
       setError("Server error");
@@ -65,33 +65,35 @@ const App = () => {
     }
   };
 
-  const getHistory = async () => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/history`);
-      const data = await res.json();
-      setHistory(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.log(err);
+  const getLocalHistory = () => {
+    const localData = localStorage.getItem("weather_search_history");
+    if (localData) {
+      setHistory(JSON.parse(localData));
     }
   };
 
-  const removeHistoryItem = async (e, id, cityName) => {
+  const saveToLocalHistory = (cityName) => {
+    let currentHistory = localStorage.getItem("weather_search_history");
+    currentHistory = currentHistory ? JSON.parse(currentHistory) : [];
+    
+    currentHistory = currentHistory.filter(
+      (item) => item.city.toLowerCase() !== cityName.toLowerCase()
+    );
+    
+    currentHistory.unshift({ city: cityName });
+    localStorage.setItem("weather_search_history", JSON.stringify(currentHistory));
+    setHistory(currentHistory);
+  };
+
+  const removeHistoryItem = (e, cityName) => {
     e.stopPropagation();
-
-    try {
-      const target = id ? id : encodeURIComponent(cityName);
-      const res = await fetch(`${BACKEND_URL}/history/${target}`, {
-        method: "DELETE",
-      });
-
-      if (res.ok) {
-        setHistory(history.filter((item) => (id ? item._id !== id : item.city !== cityName)));
-      }
-    } catch (err) {
-      console.log("History remove karne me error: ", err);
-    }
+    let currentHistory = localStorage.getItem("weather_search_history");
+    currentHistory = currentHistory ? JSON.parse(currentHistory) : [];
+    
+    const updatedHistory = currentHistory.filter((item) => item.city !== cityName);
+    localStorage.setItem("weather_search_history", JSON.stringify(updatedHistory));
+    setHistory(updatedHistory);
   };
-
 
   const getIPLocationWeather = async () => {
     try {
@@ -107,64 +109,60 @@ const App = () => {
     }
   };
 
-
-const getCurrentLocationWeather = () => {
-  if (!navigator.geolocation) {
-    getIPLocationWeather();
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-
-      try {
-        setLoading(true);
-
-        // Weather API
-        const weatherRes = await fetch(
-          `${BACKEND_URL}/weather/${lat},${lon}`
-        );
-
-        const weatherData = await weatherRes.json();
-
-        // Exact Area / Colony Name
-        const locationRes = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
-        );
-
-        const locationData = await locationRes.json();
-
-const exactLocation =
-  locationData.display_name || "Unknown Location";
-
-if (weatherData?.error) {
-  getIPLocationWeather();
-} else {
-
-  weatherData.location.name = exactLocation;
-
-  setWeather(weatherData);
-
-  setCity(exactLocation);
-
-  setError("");
-
-  getHistory();
-}
-      } catch (err) {
-        console.log(err);
-        getIPLocationWeather();
-      } finally {
-        setLoading(false);
-      }
-    },
-    () => {
+  const getCurrentLocationWeather = () => {
+    if (!navigator.geolocation) {
       getIPLocationWeather();
+      return;
     }
-  );
-};
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        try {
+          setLoading(true);
+
+          const weatherRes = await fetch(
+            `${BACKEND_URL}/current-location/${lat}/${lon}`
+          );
+          const weatherData = await weatherRes.json();
+
+          const locationRes = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+          );
+          const locationData = await locationRes.json();
+          
+          const addr = locationData.address;
+          const exactLocation = 
+            addr.suburb || 
+            addr.neighbourhood || 
+            addr.village || 
+            addr.colony || 
+            addr.city_district || 
+            weatherData.location?.name || 
+            "Current Location";
+
+          if (weatherData?.error) {
+            getIPLocationWeather();
+          } else {
+            weatherData.location.name = exactLocation;
+            setWeather(weatherData);
+            setCity(exactLocation);
+            setError("");
+          }
+        } catch (err) {
+          console.log(err);
+          getIPLocationWeather();
+        } finally {
+          setLoading(false);
+        }
+      },
+      () => {
+        getIPLocationWeather();
+      }
+    );
+  };
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
@@ -175,7 +173,7 @@ if (weatherData?.error) {
 
   useEffect(() => {
     getCurrentLocationWeather();
-    getHistory();
+    getLocalHistory();
   }, []);
 
   return (
@@ -232,7 +230,6 @@ if (weatherData?.error) {
 
         {weather && !loading && (
           <div className="dashboard">
-            {/* LEFT */}
             <div className="left-panel">
               <WeatherCard weather={weather} />
             </div>
@@ -250,7 +247,7 @@ if (weatherData?.error) {
                       
                       <button
                         className="remove-btn"
-                        onClick={(e) => removeHistoryItem(e, item._id, item.city)}
+                        onClick={(e) => removeHistoryItem(e, item.city)}
                       >
                         ×
                       </button>
@@ -258,8 +255,7 @@ if (weatherData?.error) {
                   ))
                 ) : (
                   <p>No history found</p>
-                )
-                }
+                )}
               </div>
             </div>
           </div>
