@@ -1023,8 +1023,8 @@ font-weight:bold;
   }
   
   .voice-btn {
-    right: 10px;
-    font-size: 16px !important;
+    right: -130px;
+    font-size: 20px !important;
   }
 }
 
