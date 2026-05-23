@@ -31,7 +31,6 @@ const App = () => {
     }
   };
 
-  // Text query se coordinates aur exact local area name nikalne ka handler
   const getCoordsByTextSearch = async (searchText) => {
     if (!searchText?.trim()) return;
     setLoading(true);
@@ -44,22 +43,24 @@ const App = () => {
       const geoData = await geoRes.json();
 
       if (geoData && geoData.length > 0) {
-        const { lat, lon, address } = geoData[0];
+        const { lat, lon, display_name, address } = geoData[0];
         
-        // Sabse micro level name se lekar broad level name tak ka strict check
+        // India ke har ek gali mohalle ka micro breakdown parse karne ka system
         const exactSpot = 
           address.neighbourhood || 
           address.colony || 
           address.residential || 
           address.suburb || 
+          address.townquarter ||
           address.village || 
           address.hamlet || 
-          address.town || 
           address.road || 
-          searchText;
+          address.commercial ||
+          address.industrial ||
+          display_name.split(",")[0];
 
-        const parentArea = address.city || address.county || address.state || "";
-        const finalDisplayName = (parentArea && parentArea.toLowerCase() !== exactSpot.toLowerCase()) 
+        const parentArea = address.city || address.town || address.county || address.state_district || "";
+        const finalDisplayName = (parentArea && parentArea.toLowerCase() !== exactSpot.toLowerCase() && !exactSpot.includes(parentArea)) 
           ? `${exactSpot}, ${parentArea}` 
           : exactSpot;
         
@@ -107,12 +108,8 @@ const App = () => {
       if (weatherData?.error) {
         getIPLocationWeather();
       } else {
-        // Force Overwrite screen display text with precise colony name
+        // Pure weather object structure mein exact display text force map update karenge
         weatherData.location.name = preciseName;
-        if (weatherData.location.country === "India") {
-          weatherData.location.country = "India"; 
-        }
-
         setWeather(weatherData);
         setCity(preciseName);
         saveToLocalHistory(preciseName);
@@ -149,7 +146,7 @@ const App = () => {
             
           const parent = item.address.city || item.address.town || item.address.county || "";
           return {
-            name: parent ? `${spot}, ${parent}` : spot,
+            name: (parent && parent.toLowerCase() !== spot.toLowerCase()) ? `${spot}, ${parent}` : spot,
             lat: item.lat,
             lon: item.lon
           };
@@ -207,7 +204,6 @@ const App = () => {
     }
   };
 
-  // Device GPS Tracker (Auto run on Mount)
   const getCurrentLocationWeather = () => {
     if (!navigator.geolocation) {
       getIPLocationWeather();
@@ -228,20 +224,25 @@ const App = () => {
           const locationData = await locationRes.json();
           
           const addr = locationData.address;
+          const display = locationData.display_name;
+
+          // Split display name to extract the first clean location segments
+          const nameParts = display.split(",");
+          const geoFallback = nameParts.length > 1 ? `${nameParts[0].trim()}, ${nameParts[1].trim()}` : nameParts[0];
           
-          // Google maps alignment hierarchy structure parsing
           const exactSpot = 
             addr.neighbourhood ||    
             addr.colony ||           
             addr.residential ||      
             addr.suburb ||           
+            addr.townquarter ||
             addr.village ||          
             addr.town ||             
             addr.road ||             
-            "Current Spot";
+            geoFallback;
 
-          const parentCity = addr.city || addr.town || addr.county || "";
-          const combinedLocation = (parentCity && parentCity.toLowerCase() !== exactSpot.toLowerCase()) 
+          const parentCity = addr.city || addr.town || addr.county || addr.state_district || "";
+          const combinedLocation = (parentCity && parentCity.toLowerCase() !== exactSpot.toLowerCase() && !exactSpot.includes(parentCity)) 
             ? `${exactSpot}, ${parentCity}` 
             : exactSpot;
 
