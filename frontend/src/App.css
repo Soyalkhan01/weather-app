@@ -603,44 +603,82 @@ font-size:16px;
 margin-top:15px;
 color:#ef4444;
 font-weight:bold;
-}
-/* Voice Microphone Styling Setup Grid Integration */
-.search-container {
+}.search-container {
   position: relative;
   display: flex;
   align-items: center;
+  flex: 1;
+  width: 100%;
+}
+
+.search-box input {
+  width: 100%;
+  padding-right: 55px !important;
 }
 
 .voice-btn {
   position: absolute;
-  right: 15px;
-  background: none !important;
+  right: 15px; 
+  background: transparent !important;
   border: none !important;
   font-size: 20px !important;
   cursor: pointer;
-  width: auto !important;
-  height: auto !important;
-  padding: 5px !important;
-  transition: transform 0.2s ease-in-out;
+  width: 36px !important;
+  height: 36px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50% !important;
+  padding: 0 !important;
   z-index: 10;
+  transition: all 0.3s ease;
 }
 
-.voice-btn:hover {
-  transform: scale(1.2);
-}
+.dark .voice-btn { color: #38bdf8; }
+.light .voice-btn { color: #0284c7; }
 
 .voice-btn.listening {
-  animation: pulseMic 1.2s infinite alternate;
+  color: #ffffff !important;
+  background: #ef4444 !important;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7), 0 0 0 0 rgba(239, 68, 68, 0.4);
+  animation: whatsappPulse 1.4s infinite cubic-bezier(0.66, 0, 0, 1);
 }
 
-@keyframes pulseMic {
-  0% { transform: scale(1); opacity: 0.6; }
-  100% { transform: scale(1.3); opacity: 1; }
+@keyframes whatsappPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8), 0 0 0 0 rgba(239, 68, 68, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0), 0 0 0 20px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), 0 0 0 0 rgba(239, 68, 68, 0);
+  }
 }
 
-/* Input text text padding fix so it doesn't overlap mic text */
-.search-box input {
-  padding-right: 50px !important; 
+@media (max-width: 768px) {
+  .voice-btn {
+    left: 220px; 
+    font-size: 20px !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .search-box input {
+    padding-right: 48px !important;
+  }
+}
+
+@media (max-width: 1440px) {
+  .voice-btn {
+    left: 580px;
+    font-size: 20px !important;
+  }
+}
+@media (max-width: 480px) {
+  .voice-btn {
+    left: 180px;
+    font-size: 20px !important;
+  }
 }
 @media(max-width:1200px){
 
