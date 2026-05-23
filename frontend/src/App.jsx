@@ -10,19 +10,30 @@ const App = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+  const [currentCoords, setCurrentCoords] = useState(null);
 
   const BACKEND_URL = "https://weather-backend-n5fs.onrender.com";
 
+  // Automatic Background Refresh Block
   useEffect(() => {
     const interval = setInterval(() => {
       if (city) {
-        getWeather(city);
+        handleSearchRoute();
       }
     }, 300000);
     return () => clearInterval(interval);
-  }, [city]);
+  }, [city, currentCoords]);
 
-  const getWeather = async (selectedCity) => {
+  const handleSearchRoute = () => {
+    if (currentCoords && city === currentCoords.name) {
+      getWeatherByCoords(currentCoords.lat, currentCoords.lon, currentCoords.name);
+    } else {
+      getWeatherByText(city);
+    }
+  };
+
+  // 1. Text Search (Jab koi typing karke dhoonde)
+  const getWeatherByText = async (selectedCity) => {
     if (!selectedCity?.trim()) return;
 
     setLoading(true);
@@ -41,6 +52,33 @@ const App = () => {
         setWeather(data);
         setCity(data.location?.name || selectedCity);
         saveToLocalHistory(data.location?.name || selectedCity);
+      }
+    } catch (err) {
+      setError("Server error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 2. Exact Coordinates Weather (Bina search kiye auto-load aur Google Maps accuracy ke liye)
+  const getWeatherByCoords = async (lat, lon, fallbackName) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const weatherRes = await fetch(
+        `${BACKEND_URL}/current-location/${lat}/${lon}`
+      );
+      const weatherData = await weatherRes.json();
+
+      if (weatherData?.error) {
+        getIPLocationWeather();
+      } else {
+        // API response ke andar location name ko hamare exact colony/village name se overwrite karenge
+        weatherData.location.name = fallbackName;
+        setWeather(weatherData);
+        setCity(fallbackName);
+        saveToLocalHistory(fallbackName);
       }
     } catch (err) {
       setError("Server error");
@@ -100,15 +138,16 @@ const App = () => {
       const res = await fetch("https://ipapi.co/json/");
       const data = await res.json();
       if (data?.city) {
-        getWeather(data.city);
+        getWeatherByText(data.city);
       } else {
-        getWeather("Delhi");
+        getWeatherByText("Delhi");
       }
     } catch (err) {
-      getWeather("Delhi");
+      getWeatherByText("Delhi");
     }
   };
 
+  // 100% Automated Initial Load System
   const getCurrentLocationWeather = () => {
     if (!navigator.geolocation) {
       getIPLocationWeather();
@@ -123,11 +162,7 @@ const App = () => {
         try {
           setLoading(true);
 
-          const weatherRes = await fetch(
-            `${BACKEND_URL}/current-location/${lat}/${lon}`
-          );
-          const weatherData = await weatherRes.json();
-
+          // Suburb, colony, neighbourhood ya village ka accurate naam nikalne ke liye
           const locationRes = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
           );
@@ -140,17 +175,14 @@ const App = () => {
             addr.village || 
             addr.colony || 
             addr.city_district || 
-            weatherData.location?.name || 
             "Current Location";
 
-          if (weatherData?.error) {
-            getIPLocationWeather();
-          } else {
-            weatherData.location.name = exactLocation;
-            setWeather(weatherData);
-            setCity(exactLocation);
-            setError("");
-          }
+          // State memory block updates
+          setCurrentCoords({ lat, lon, name: exactLocation });
+
+          // Bina kisi click ke, direct coordinate API trigger kar rahe hain
+          await getWeatherByCoords(lat, lon, exactLocation);
+
         } catch (err) {
           console.log(err);
           getIPLocationWeather();
@@ -166,7 +198,7 @@ const App = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
-      getWeather(city);
+      handleSearchRoute();
       setSuggestions([]);
     }
   };
@@ -198,7 +230,7 @@ const App = () => {
                       className="dropdown-item"
                       onClick={() => {
                         setCity(item.name);
-                        getWeather(item.name);
+                        getWeatherByText(item.name);
                         setSuggestions([]);
                       }}
                     >
@@ -211,7 +243,7 @@ const App = () => {
 
             <button
               onClick={() => {
-                getWeather(city);
+                handleSearchRoute();
                 setSuggestions([]);
               }}
             >
@@ -241,7 +273,7 @@ const App = () => {
                     <div
                       key={index}
                       className="history-item"
-                      onClick={() => getWeather(item.city)}
+                      onClick={() => getWeatherByText(item.city)}
                     >
                       <span>🌍 {item.city}</span>
                       
