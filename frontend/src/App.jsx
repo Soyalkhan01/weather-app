@@ -27,34 +27,39 @@ const App = () => {
     if (currentCoords && city.trim().toLowerCase() === currentCoords.name.toLowerCase()) {
       getWeatherByCoords(currentCoords.lat, currentCoords.lon, currentCoords.name);
     } else {
-      // Manual typing par hum pehle openstreetmap se coordinates dhoondenge
       getCoordsByTextSearch(city);
     }
   };
 
-  // Google Maps ki tarah India ke kisi bhi gali/gaon ke naam se pehle coordinates nikalne ka system
+  // Text se Coordinates nikalne ka master function (Google Maps Architecture)
   const getCoordsByTextSearch = async (searchText) => {
     if (!searchText?.trim()) return;
     setLoading(true);
     setError("");
 
     try {
-      // OpenStreetMap par request bhej kar exact India ki location filter lagaya hai
       const geoRes = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchText)}&countrycodes=in&limit=1`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchText)}&countrycodes=in&limit=1&addressdetails=1`
       );
       const geoData = await geoRes.json();
 
       if (geoData && geoData.length > 0) {
-        const { lat, lon, display_name } = geoData[0];
+        const { lat, lon, display_name, address } = geoData[0];
         
-        // Lambe address mese pehla hissa nikalne ke liye (e.g., "Shiv Colony")
-        const shortName = display_name.split(",")[0];
+        // Exact Colony ya Mohalle ka naam nikalne ka fallback system
+        const exactSpot = 
+          address.neighbourhood || 
+          address.suburb || 
+          address.colony || 
+          address.village || 
+          display_name.split(",")[0];
+
+        // Sikar, Rajasthan jaisa parent area short karne ke liye
+        const parentArea = address.city || address.town || address.county || "";
+        const finalDisplayName = parentArea ? `${exactSpot}, ${parentArea}` : exactSpot;
         
-        // Sahi coordinates milte hi direct coordinates wale weather function ko trigger karenge
-        await getWeatherByCoords(lat, lon, shortName);
+        await getWeatherByCoords(lat, lon, finalDisplayName);
       } else {
-        // Agar bilkul micro-location nahi milti toh normal backend text search backup chalega
         await getWeatherByText(searchText);
       }
     } catch (err) {
@@ -64,7 +69,7 @@ const App = () => {
     }
   };
 
-  // 1. Text Search Backup Handler
+  // Backup Text Weather
   const getWeatherByText = async (selectedCity) => {
     try {
       const res = await fetch(
@@ -85,8 +90,8 @@ const App = () => {
     }
   };
 
-  // 2. Exact Coordinates Weather (Real-Time Location Verification)
-  const getWeatherByCoords = async (lat, lon, fallbackName) => {
+  // Exact Coordinates Weather Loader
+  const getWeatherByCoords = async (lat, lon, preciseName) => {
     setLoading(true);
     setError("");
 
@@ -99,10 +104,15 @@ const App = () => {
       if (weatherData?.error) {
         getIPLocationWeather();
       } else {
-        weatherData.location.name = fallbackName;
+        // CRITICAL FORCE OVERWRITE: Pure weather object mein har jagah exact colony force kar rahe hain
+        weatherData.location.name = preciseName;
+        if (weatherData.location.country === "India") {
+          weatherData.location.country = "Rajasthan, India"; 
+        }
+
         setWeather(weatherData);
-        setCity(fallbackName);
-        saveToLocalHistory(fallbackName);
+        setCity(preciseName);
+        saveToLocalHistory(preciseName);
       }
     } catch (err) {
       setError("Server error");
@@ -111,7 +121,7 @@ const App = () => {
     }
   };
 
-  // Dropdown Suggestions using OpenStreetMap for precise local spots
+  // Dropdown Suggestions (India Only Focused)
   const searchCities = async (value) => {
     setCity(value);
     if (!value.trim() || value.length < 3) {
@@ -120,19 +130,21 @@ const App = () => {
     }
 
     try {
-      // India focus auto-suggestions for villages, colonies, and landmarks
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&countrycodes=in&limit=5`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&countrycodes=in&limit=5&addressdetails=1`
       );
       const data = await res.json();
       
       if (Array.isArray(data)) {
-        const formattedSuggestions = data.map(item => ({
-          name: item.display_name.split(",")[0] + ", " + (item.address?.city || item.address?.state || "India"),
-          fullName: item.display_name,
-          lat: item.lat,
-          lon: item.lon
-        }));
+        const formattedSuggestions = data.map(item => {
+          const spot = item.address.neighbourhood || item.address.suburb || item.address.colony || item.address.village || item.display_name.split(",")[0];
+          const parent = item.address.city || item.address.town || item.address.state || "";
+          return {
+            name: parent ? `${spot}, ${parent}` : spot,
+            lat: item.lat,
+            lon: item.lon
+          };
+        });
         setSuggestions(formattedSuggestions);
       } else {
         setSuggestions([]);
@@ -186,6 +198,7 @@ const App = () => {
     }
   };
 
+  // Auto GPS Tracking on App Start
   const getCurrentLocationWeather = () => {
     if (!navigator.geolocation) {
       getIPLocationWeather();
@@ -206,18 +219,20 @@ const App = () => {
           const locationData = await locationRes.json();
           
           const addr = locationData.address;
-          const exactLocation = 
+          const exactSpot = 
             addr.neighbourhood ||    
             addr.suburb ||           
             addr.colony ||           
             addr.village ||          
             addr.town ||             
             addr.road ||             
-            addr.city_district ||    
-            "Current Location";
+            "Current Spot";
 
-          setCurrentCoords({ lat, lon, name: exactLocation });
-          await getWeatherByCoords(lat, lon, exactLocation);
+          const parentCity = addr.city || addr.county || "";
+          const combinedLocation = parentCity ? `${exactSpot}, ${parentCity}` : exactSpot;
+
+          setCurrentCoords({ lat, lon, name: combinedLocation });
+          await getWeatherByCoords(lat, lon, combinedLocation);
 
         } catch (err) {
           console.log(err);
@@ -292,7 +307,7 @@ const App = () => {
           </button>
         </div>
 
-        {loading && <p className="loading">Mapping accurate weather grid...</p>}
+        {loading && <p className="loading">Fetching Weather...</p>}
 
         {error && <p className="error">{error}</p>}
 
