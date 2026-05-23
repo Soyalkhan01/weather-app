@@ -656,9 +656,9 @@ font-weight:bold;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 2560px) {
   .voice-btn {
-    left: 220px; 
+    left: 1250px; 
     font-size: 20px !important;
     width: 32px !important;
     height: 32px !important;
@@ -667,19 +667,49 @@ font-weight:bold;
     padding-right: 48px !important;
   }
 }
-
 @media (max-width: 1440px) {
   .voice-btn {
-    left: 580px;
+    left: 1040px; 
     font-size: 20px !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .search-box input {
+    padding-right: 48px !important;
   }
 }
-@media (max-width: 480px) {
+@media (max-width: 1024px) {
   .voice-btn {
-    left: 180px;
+    left: 670px; 
     font-size: 20px !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .search-box input {
+    padding-right: 48px !important;
   }
 }
+@media (max-width: 768px) {
+  .voice-btn {
+    left: 320px; 
+    font-size: 20px !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .search-box input {
+    padding-right: 48px !important;
+  }
+}
+@media (max-width: 576px) {
+  .voice-btn {
+    left: 160px; 
+    font-size: 20px !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+
+
 @media(max-width:1200px){
 
 .weather-card{
