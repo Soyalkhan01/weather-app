@@ -102,7 +102,7 @@ weather-app/
 ## 📥 Repository
 
 ```bash
-git clone https://github.com/Soyalkhan01/weather-app
+git https://github.com/Soyalkhan01/weather-app
 ```
 
 ---
