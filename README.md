@@ -8,7 +8,7 @@ A modern Full Stack Weather Web Application built using **React JS**, **Flask**,
 
 ## 🌐 Frontend
 
-https://weather-frontend-62ck.onrender.com
+https://weather-app-sigma-three-70.vercel.app
 
 ## ⚙️ Backend API
 
