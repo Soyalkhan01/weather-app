@@ -330,7 +330,8 @@ const App = () => {
 
 useEffect(() => {
   getCurrentLocationWeather();
-}, );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
   return (
     <div className={darkMode ? "container dark" : "container light"}>
