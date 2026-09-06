@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import WeatherCard from "./components/WeatherCard";
 
@@ -14,15 +14,6 @@ const App = () => {
   const [isListening, setIsListening] = useState(false);
 
   const BACKEND_URL = "https://weather-backend-n5fs.onrender.com";
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (city) {
-        handleSearchRoute();
-      }
-    }, 300000);
-    return () => clearInterval(interval);
-  }, [city, currentCoords]);
 
   const handleSearchRoute = () => {
     if (currentCoords && city.trim().toLowerCase() === currentCoords.name.toLowerCase()) {
@@ -145,7 +136,7 @@ const App = () => {
       } else {
         await getWeatherByText(searchText);
       }
-    } catch (err) {
+    } catch {
       await getWeatherByText(searchText);
     } finally {
       setLoading(false);
@@ -167,7 +158,7 @@ const App = () => {
         setCity(data.location?.name || selectedCity);
         saveToLocalHistory(data.location?.name || selectedCity);
       }
-    } catch (err) {
+    } catch{
       setError("Server error");
     }
   };
@@ -190,7 +181,7 @@ const App = () => {
         setCity(preciseName);
         saveToLocalHistory(preciseName);
       }
-    } catch (err) {
+    } catch {
       setError("Server error");
     } finally {
       setLoading(false);
@@ -236,13 +227,6 @@ const App = () => {
     }
   };
 
-  const getLocalHistory = () => {
-    const localData = localStorage.getItem("weather_search_history");
-    if (localData) {
-      setHistory(JSON.parse(localData));
-    }
-  };
-
   const saveToLocalHistory = (cityName) => {
     let currentHistory = localStorage.getItem("weather_search_history");
     currentHistory = currentHistory ? JSON.parse(currentHistory) : [];
@@ -275,7 +259,7 @@ const App = () => {
       } else {
         getCoordsByTextSearch("Sikar");
       }
-    } catch (err) {
+    } catch {
       getCoordsByTextSearch("Sikar");
     }
   };
@@ -344,10 +328,9 @@ const App = () => {
     }
   };
 
-  useEffect(() => {
-    getCurrentLocationWeather();
-    getLocalHistory();
-  }, []);
+useEffect(() => {
+  getCurrentLocationWeather();
+}, );
 
   return (
     <div className={darkMode ? "container dark" : "container light"}>
